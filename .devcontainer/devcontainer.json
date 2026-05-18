@@ -9,8 +9,7 @@
     },
     "ghcr.io/devcontainers/features/node:2": {
       "version": "latest",
-      "npmVersion": "latest",
-      "nvmVersion": "latest"
+      "npmVersion": "latest"
     }
   },
   "containerEnv": {
