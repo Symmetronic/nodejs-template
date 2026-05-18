@@ -1,0 +1,75 @@
+{
+  "name": "Dev Container",
+  "image": "mcr.microsoft.com/devcontainers/base:latest",
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "installOhMyZsh": true,
+      "configureZshAsDefaultShell": true
+    },
+    "ghcr.io/devcontainers/features/node:2": {
+      "version": "latest",
+      "npmVersion": "latest",
+      "nvmVersion": "latest"
+    }
+  },
+  "containerEnv": {
+    "DANGEROUSLY_SET_NPM_REGISTRY": "https://registry.npmjs.org/"
+  },
+  "portsAttributes": {
+    "8080": {
+      "label": "Application",
+      "onAutoForward": "openBrowserOnce"
+    }
+  },
+  "remoteUser": "vscode",
+  "workspaceFolder": "/workspace",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=delegated",
+  "mounts": [
+    "source=node-modules-${devcontainerId},target=/workspace/node_modules,type=volume"
+  ],
+  "postCreateCommand": "sudo chown -R vscode:vscode /workspace && git config --global --add safe.directory /workspace && git config core.fileMode false",
+  "postStartCommand": "npm ci",
+  "waitFor": "postStartCommand",
+  "customizations": {
+    "vscode": {
+      "extensions": ["dbaeumer.vscode-eslint", "esbenp.prettier-vscode"],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "git.autofetch": true,
+        "ts.preferences.importModuleSpecifier": "non-relative",
+        "[css]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[html]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[javascript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[javascriptreact]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[json]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[less]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[markdown]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[scss]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[typescript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[typescriptreact]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        }
+      }
+    }
+  }
+}
