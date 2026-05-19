@@ -13,7 +13,7 @@
     }
   },
   "containerEnv": {
-    "DANGEROUSLY_SET_NPM_REGISTRY": "https://registry.npmjs.org/"
+    "NPM_REGISTRY": "https://registry.npmjs.org/"
   },
   "portsAttributes": {
     "8080": {
