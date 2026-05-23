@@ -16,6 +16,7 @@ export default defineConfig(
     },
   },
   {
+    name: "no type assertions",
     rules: {
       "@typescript-eslint/consistent-type-assertions": [
         "error",

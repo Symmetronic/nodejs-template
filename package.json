@@ -4,9 +4,9 @@
   "type": "module",
   "scripts": {
     "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "lint": "eslint --max-warnings=0 .",
-    "lint:fix": "eslint --fix .",
+    "format:check": "npm run format -- --check",
+    "lint": "npx --node-options='--experimental-strip-types' eslint --flag unstable_native_nodejs_ts_config --max-warnings=0 .",
+    "lint:fix": "npm run lint -- --fix",
     "prepare": "husky",
     "typecheck": "tsc --noEmit"
   },
@@ -16,7 +16,6 @@
     "eslint": "latest",
     "eslint-config-prettier": "latest",
     "husky": "latest",
-    "jiti": "latest",
     "lint-staged": "latest",
     "prettier": "latest",
     "prettier-plugin-organize-imports": "latest",
