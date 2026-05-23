@@ -12,7 +12,6 @@
   },
   "devDependencies": {
     "@eslint/js": "latest",
-    "@tsconfig/node-lts": "latest",
     "@tsconfig/strictest": "latest",
     "eslint": "latest",
     "eslint-config-prettier": "latest",
