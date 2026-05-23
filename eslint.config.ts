@@ -16,11 +16,15 @@ export default defineConfig(
       },
     },
   },
+  functional.configs.recommended,
   {
-    name: "immutable data",
-    plugins: { functional },
+    name: "https://github.com/eslint-functional/eslint-plugin-functional#external-recommended-rules",
     rules: {
-      "functional/immutable-data": "error",
+      "no-var": "error",
+      "no-param-reassign": "error",
+      "prefer-const": "error",
+      "@typescript-eslint/prefer-readonly": "error",
+      "@typescript-eslint/switch-exhaustiveness-check": "error",
     },
   },
   {
