@@ -1,5 +1,6 @@
 import js from "@eslint/js";
 import eslintConfigPrettier from "eslint-config-prettier/flat";
+import functional from "eslint-plugin-functional";
 import { defineConfig, globalIgnores } from "eslint/config";
 import tseslint from "typescript-eslint";
 
@@ -13,6 +14,13 @@ export default defineConfig(
       parserOptions: {
         projectService: true,
       },
+    },
+  },
+  {
+    name: "immutable data",
+    plugins: { functional },
+    rules: {
+      "functional/immutable-data": "error",
     },
   },
   {

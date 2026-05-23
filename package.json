@@ -15,6 +15,7 @@
     "@tsconfig/strictest": "latest",
     "eslint": "latest",
     "eslint-config-prettier": "latest",
+    "eslint-plugin-functional": "latest",
     "husky": "latest",
     "jiti": "latest",
     "lint-staged": "latest",
