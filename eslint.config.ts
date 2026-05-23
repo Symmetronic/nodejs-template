@@ -34,6 +34,7 @@ const baselineConfigs: Config[] = [
 
 const policyConfigs: Config[] = [
   functional.configs.recommended,
+  functional.configs.stylistic,
   // https://github.com/eslint-functional/eslint-plugin-functional#external-recommended-rules
   {
     name: "functional-plugin-companion-rules",
