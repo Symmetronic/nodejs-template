@@ -6,7 +6,6 @@ import tseslint from "typescript-eslint";
 export default defineConfig(
   globalIgnores(["node_modules/", "dist/", "build/", "coverage/"]),
   js.configs.recommended,
-  eslintConfigPrettier,
   tseslint.configs.strictTypeChecked,
   tseslint.configs.stylisticTypeChecked,
   {
@@ -16,4 +15,5 @@ export default defineConfig(
       },
     },
   },
+  eslintConfigPrettier,
 );

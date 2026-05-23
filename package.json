@@ -19,6 +19,7 @@
     "jiti": "latest",
     "lint-staged": "latest",
     "prettier": "latest",
+    "prettier-plugin-organize-imports": "latest",
     "typescript": "latest",
     "typescript-eslint": "latest"
   }
