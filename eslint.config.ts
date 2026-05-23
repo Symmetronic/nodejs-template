@@ -24,6 +24,12 @@ export default defineConfig(
     },
   },
   {
+    name: "no magic numbers",
+    rules: {
+      "@typescript-eslint/no-magic-numbers": "error",
+    },
+  },
+  {
     name: "no type assertions",
     rules: {
       "@typescript-eslint/consistent-type-assertions": [
