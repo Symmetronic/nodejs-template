@@ -33,19 +33,9 @@ const baselineConfigs: Config[] = [
 ];
 
 const policyConfigs: Config[] = [
-  functional.configs.recommended,
+  functional.configs.lite,
   functional.configs.stylistic,
-  // https://github.com/eslint-functional/eslint-plugin-functional#external-recommended-rules
-  {
-    name: "functional-plugin-companion-rules",
-    rules: {
-      "no-var": "error",
-      "no-param-reassign": "error",
-      "prefer-const": "error",
-      "@typescript-eslint/prefer-readonly": "error",
-      "@typescript-eslint/switch-exhaustiveness-check": "error",
-    },
-  },
+  functional.configs.externalTypeScriptRecommended,
   {
     name: "no-magic-numbers",
     rules: {
