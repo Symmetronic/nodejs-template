@@ -32,10 +32,20 @@ const baselineConfigs: Config[] = [
   },
 ];
 
+const functionalLiteNoMutationsRules = Object.fromEntries(
+  Object.entries(functional.configs.lite.rules ?? {}).filter(
+    ([name]) => name in (functional.configs.noMutations.rules ?? {}),
+  ),
+);
+
 const policyConfigs: Config[] = [
-  functional.configs.lite,
-  functional.configs.stylistic,
   functional.configs.externalTypeScriptRecommended,
+  functional.configs.stylistic,
+  {
+    name: "functional-lite-no-mutations",
+    plugins: { functional },
+    rules: functionalLiteNoMutationsRules,
+  },
   {
     name: "no-magic-numbers",
     rules: {
