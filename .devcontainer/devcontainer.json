@@ -27,8 +27,8 @@
   "mounts": [
     "source=node-modules-${devcontainerId},target=/workspace/node_modules,type=volume"
   ],
-  "postCreateCommand": "sudo chown -R vscode:vscode /workspace && git config --global --add safe.directory /workspace && git config core.fileMode false",
-  "postStartCommand": "npm ci",
+  "postCreateCommand": "bash .devcontainer/scripts/post-create.sh",
+  "postStartCommand": "bash .devcontainer/scripts/post-start.sh",
   "waitFor": "postStartCommand",
   "customizations": {
     "vscode": {
