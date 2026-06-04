@@ -1,6 +1,8 @@
-name: Pull Request
+name: CI
 
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
 
@@ -10,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Build dev container image
+      - name: Build Docker image
         run: docker build -t devcontainer .devcontainer
 
       - name: Run CI checks
