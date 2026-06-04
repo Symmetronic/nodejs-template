@@ -8,7 +8,7 @@
     "format:check": "npm run format -- --check",
     "lint": "eslint --max-warnings=0 .",
     "lint:fix": "npm run lint -- --fix",
-    "prepare": "husky",
+    "prepare": "is-ci || husky",
     "test": "true",
     "typecheck": "tsc --noEmit"
   },
@@ -19,6 +19,7 @@
     "eslint-config-prettier": "latest",
     "eslint-plugin-functional": "latest",
     "husky": "latest",
+    "is-ci": "latest",
     "jiti": "latest",
     "lint-staged": "latest",
     "prettier": "latest",
