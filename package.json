@@ -3,11 +3,13 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "build": "true",
     "format": "prettier --write .",
     "format:check": "npm run format -- --check",
     "lint": "eslint --max-warnings=0 .",
     "lint:fix": "npm run lint -- --fix",
     "prepare": "husky",
+    "test": "true",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
