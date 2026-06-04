@@ -17,7 +17,7 @@
   ],
   "postCreateCommand": "bash .devcontainer/scripts/post-create.sh",
   "postStartCommand": "bash .devcontainer/scripts/post-start.sh",
-  "waitFor": "postStartCommand",
+  "waitFor": "postCreateCommand",
   "customizations": {
     "vscode": {
       "extensions": [
