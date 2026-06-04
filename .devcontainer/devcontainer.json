@@ -1,19 +1,7 @@
 {
   "name": "Dev Container",
-  "image": "mcr.microsoft.com/devcontainers/base:latest",
-  "features": {
-    "ghcr.io/devcontainers/features/common-utils:2": {
-      "installZsh": true,
-      "installOhMyZsh": true,
-      "configureZshAsDefaultShell": true
-    },
-    "ghcr.io/devcontainers/features/node:2": {
-      "version": "lts",
-      "npmVersion": "latest"
-    }
-  },
-  "containerEnv": {
-    "NPM_REGISTRY": "https://registry.npmjs.org/"
+  "build": {
+    "dockerfile": "Dockerfile"
   },
   "portsAttributes": {
     "8080": {
@@ -21,7 +9,7 @@
       "onAutoForward": "openBrowserOnce"
     }
   },
-  "remoteUser": "vscode",
+  "remoteUser": "node",
   "workspaceFolder": "/workspace",
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=delegated",
   "mounts": [
