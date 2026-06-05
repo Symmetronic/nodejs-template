@@ -34,14 +34,13 @@ const baselineConfigs: Config[] = [
       ],
     },
   },
-  importX.flatConfigs.recommended,
+  importX.flatConfigs.errors,
   importX.flatConfigs.typescript,
   {
     name: "clean-imports",
     rules: {
       "import-x/no-cycle": "error",
       "import-x/no-duplicates": "error",
-      "import-x/no-named-as-default-member": "off",
       "import-x/no-self-import": "error",
       "import-x/no-useless-path-segments": "error",
     },
