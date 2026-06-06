@@ -26,12 +26,22 @@ const baselineConfigs: Config[] = [
   tseslint.configs.strictTypeChecked,
   tseslint.configs.stylisticTypeChecked,
   {
-    name: "no-type-assertions",
+    name: "safe-types",
     rules: {
+      "@typescript-eslint/ban-ts-comment": [
+        "error",
+        {
+          "ts-check": true,
+          "ts-expect-error": true,
+          "ts-ignore": true,
+          "ts-nocheck": true,
+        },
+      ],
       "@typescript-eslint/consistent-type-assertions": [
         "error",
         { assertionStyle: "never" },
       ],
+      eqeqeq: "error",
     },
   },
   importX.flatConfigs.errors,
