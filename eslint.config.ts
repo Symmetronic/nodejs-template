@@ -45,6 +45,15 @@ const recommendedConfigs: Config[] = [
       eqeqeq: "error",
     },
   },
+  importX.flatConfigs.errors,
+  importX.flatConfigs.typescript,
+  {
+    name: "correct-imports",
+    rules: {
+      "import-x/no-cycle": "error",
+      "import-x/no-self-import": "error",
+    },
+  },
 ];
 
 const liteSeverityNoMutationRules = Object.fromEntries(
@@ -55,16 +64,18 @@ const liteSeverityNoMutationRules = Object.fromEntries(
 
 const stylisticConfigs: Config[] = [
   tseslint.configs.stylisticTypeChecked,
-  importX.flatConfigs.errors,
-  importX.flatConfigs.typescript,
   {
     name: "clean-imports",
     rules: {
-      "import-x/no-cycle": "error",
       "import-x/no-duplicates": "error",
-      "import-x/no-self-import": "error",
       "import-x/no-useless-path-segments": "error",
     },
+  },
+  functional.configs.externalTypeScriptRecommended,
+  functional.configs.stylistic,
+  {
+    name: "no-mutations",
+    rules: liteSeverityNoMutationRules,
   },
   {
     name: "no-debug-output",
@@ -74,12 +85,6 @@ const stylisticConfigs: Config[] = [
       "no-console": "error",
       "no-debugger": "error",
     },
-  },
-  functional.configs.externalTypeScriptRecommended,
-  functional.configs.stylistic,
-  {
-    name: "no-mutations",
-    rules: liteSeverityNoMutationRules,
   },
   {
     name: "no-magic-numbers",
