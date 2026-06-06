@@ -8,7 +8,6 @@ import tseslint from "typescript-eslint";
 type Config = Parameters<typeof defineConfig>[number];
 
 const MAX_DEPTH = 3;
-const MAX_PARAMS = 3;
 
 const infrastructureConfigs: Config[] = [
   globalIgnores(["node_modules/", "dist/", "build/", "coverage/"]),
@@ -62,13 +61,14 @@ const baselineConfigs: Config[] = [
     name: "no-debug-output",
     rules: {
       "no-alert": "error",
-      // Add `"no-console": "error"` for frontend apps
+      // Remove `no-console` rule for backend apps
+      "no-console": "error",
       "no-debugger": "error",
     },
   },
 ];
 
-const functionalLiteNoMutationsRules = Object.fromEntries(
+const liteSeverityNoMutationRules = Object.fromEntries(
   Object.entries(functional.configs.lite.rules ?? {}).filter(
     ([name]) => name in (functional.configs.noMutations.rules ?? {}),
   ),
@@ -79,7 +79,7 @@ const policyConfigs: Config[] = [
   functional.configs.stylistic,
   {
     name: "no-mutations",
-    rules: functionalLiteNoMutationsRules,
+    rules: liteSeverityNoMutationRules,
   },
   {
     name: "no-magic-numbers",
@@ -95,16 +95,9 @@ const policyConfigs: Config[] = [
     },
   },
   {
-    name: "explicit-contracts",
-    rules: {
-      "@typescript-eslint/explicit-function-return-type": "error",
-    },
-  },
-  {
     name: "readability",
     rules: {
       "max-depth": ["error", MAX_DEPTH],
-      "max-params": ["error", MAX_PARAMS],
       "no-else-return": "error",
       "no-nested-ternary": "error",
     },
