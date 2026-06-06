@@ -9,9 +9,13 @@ type Config = Parameters<typeof defineConfig>[number];
 
 const MAX_DEPTH = 3;
 
-const infrastructureConfigs: Config[] = [
-  globalIgnores(["node_modules/", "dist/", "build/", "coverage/"]),
+const recommendedConfigs: Config[] = [
+  globalIgnores(
+    ["node_modules/", "dist/", "build/", "coverage/"],
+    "global-ignores",
+  ),
   {
+    name: "eslint-configuration",
     languageOptions: {
       parserOptions: {
         projectService: true,
@@ -21,9 +25,6 @@ const infrastructureConfigs: Config[] = [
       noInlineConfig: true,
     },
   },
-];
-
-const recommendedConfigs: Config[] = [
   js.configs.recommended,
   tseslint.configs.strictTypeChecked,
   {
@@ -110,7 +111,6 @@ const stylisticConfigs: Config[] = [
 ];
 
 export default defineConfig(
-  ...infrastructureConfigs,
   ...recommendedConfigs,
   ...stylisticConfigs,
   prettierConfig,
