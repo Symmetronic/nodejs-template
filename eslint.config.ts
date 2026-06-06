@@ -7,6 +7,9 @@ import tseslint from "typescript-eslint";
 
 type Config = Parameters<typeof defineConfig>[number];
 
+const MAX_DEPTH = 3;
+const MAX_PARAMS = 3;
+
 const infrastructureConfigs: Config[] = [
   globalIgnores(["node_modules/", "dist/", "build/", "coverage/"]),
   {
@@ -85,6 +88,15 @@ const policyConfigs: Config[] = [
     name: "explicit-contracts",
     rules: {
       "@typescript-eslint/explicit-function-return-type": "error",
+    },
+  },
+  {
+    name: "readability",
+    rules: {
+      "max-depth": ["error", MAX_DEPTH],
+      "max-params": ["error", MAX_PARAMS],
+      "no-else-return": "error",
+      "no-nested-ternary": "error",
     },
   },
 ];
