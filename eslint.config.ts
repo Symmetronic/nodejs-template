@@ -23,10 +23,9 @@ const infrastructureConfigs: Config[] = [
   },
 ];
 
-const baselineConfigs: Config[] = [
+const recommendedConfigs: Config[] = [
   js.configs.recommended,
   tseslint.configs.strictTypeChecked,
-  tseslint.configs.stylisticTypeChecked,
   {
     name: "safe-types",
     rules: {
@@ -46,6 +45,16 @@ const baselineConfigs: Config[] = [
       eqeqeq: "error",
     },
   },
+];
+
+const liteSeverityNoMutationRules = Object.fromEntries(
+  Object.entries(functional.configs.lite.rules ?? {}).filter(
+    ([name]) => name in (functional.configs.noMutations.rules ?? {}),
+  ),
+);
+
+const stylisticConfigs: Config[] = [
+  tseslint.configs.stylisticTypeChecked,
   importX.flatConfigs.errors,
   importX.flatConfigs.typescript,
   {
@@ -66,15 +75,6 @@ const baselineConfigs: Config[] = [
       "no-debugger": "error",
     },
   },
-];
-
-const liteSeverityNoMutationRules = Object.fromEntries(
-  Object.entries(functional.configs.lite.rules ?? {}).filter(
-    ([name]) => name in (functional.configs.noMutations.rules ?? {}),
-  ),
-);
-
-const policyConfigs: Config[] = [
   functional.configs.externalTypeScriptRecommended,
   functional.configs.stylistic,
   {
@@ -106,7 +106,7 @@ const policyConfigs: Config[] = [
 
 export default defineConfig(
   ...infrastructureConfigs,
-  ...baselineConfigs,
-  ...policyConfigs,
+  ...recommendedConfigs,
+  ...stylisticConfigs,
   prettierConfig,
 );
