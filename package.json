@@ -5,8 +5,12 @@
   "type": "module",
   "scripts": {
     "build": "true",
+    "check": "npm run format:check && npm run typecheck && npm run lint && npm run knip",
+    "fix": "npm run lint:fix && npm run format && npm run knip:fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "knip": "knip",
+    "knip:fix": "npm run knip -- --fix && npm install",
     "lint": "eslint --max-warnings=0 .",
     "lint:fix": "npm run lint -- --fix",
     "prepare": "is-ci || husky",
@@ -16,6 +20,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@tsconfig/strictest": "^2.0.8",
+    "@types/node": "^24.13.1",
     "eslint": "^10.4.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-typescript": "^4.4.5",
@@ -24,6 +29,7 @@
     "husky": "^9.1.7",
     "is-ci": "^4.1.0",
     "jiti": "^2.7.0",
+    "knip": "^6.16.1",
     "lint-staged": "^17.0.5",
     "prettier": "^3.8.3",
     "prettier-plugin-organize-imports": "^4.3.0",
