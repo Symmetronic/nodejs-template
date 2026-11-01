@@ -3,7 +3,17 @@
   "build": {
     "dockerfile": "Dockerfile"
   },
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:4": {
+      "moby": false
+    }
+  },
+  "runArgs": ["--publish", "0.0.0.0:8100:8100"],
   "portsAttributes": {
+    "8100": {
+      "label": "OpenHands Agent Canvas",
+      "onAutoForward": "ignore"
+    },
     "8080": {
       "label": "Application",
       "onAutoForward": "openBrowserOnce"
@@ -13,10 +23,13 @@
   "workspaceFolder": "/workspace",
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=delegated",
   "mounts": [
-    "source=node-modules-${devcontainerId},target=/workspace/node_modules,type=volume"
+    "source=node-modules-${devcontainerId},target=/workspace/node_modules,type=volume",
+    "source=claude-config-${devcontainerId},target=/home/node/.claude,type=volume",
+    "source=openhands-data-${devcontainerId},target=/home/node/.openhands,type=volume"
   ],
   "postCreateCommand": "bash .devcontainer/scripts/post-create.sh",
   "postStartCommand": "bash .devcontainer/scripts/post-start.sh",
+  "postAttachCommand": "bash .devcontainer/scripts/start-agent-canvas.sh",
   "waitFor": "postCreateCommand",
   "customizations": {
     "vscode": {
