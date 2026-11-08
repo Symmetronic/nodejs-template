@@ -1,1 +1,4 @@
 npx lint-staged
+
+# Type errors are project-wide, so they cannot be caught per-file by lint-staged
+npm run typecheck

@@ -1,3 +1,4 @@
 {
-  "*.{css,cjs,cjsx,cts,ctsx,html,js,json,jsx,less,md,mjs,mjsx,mts,mtsx,scss,ts,tsx}": "prettier --write"
+  "*.{css,cjs,cjsx,cts,ctsx,html,js,json,jsx,less,md,mjs,mjsx,mts,mtsx,scss,ts,tsx}": "prettier --write",
+  "*.{cjs,cjsx,cts,ctsx,js,jsx,mjs,mjsx,mts,mtsx,ts,tsx}": "eslint --max-warnings=0 --fix"
 }

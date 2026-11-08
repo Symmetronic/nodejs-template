@@ -19,6 +19,10 @@
       "onAutoForward": "openBrowserOnce"
     }
   },
+  "containerEnv": {
+    "DO_NOT_TRACK": "1",
+    "AGENT_CANVAS_DISABLE_TELEMETRY": "1"
+  },
   "remoteUser": "node",
   "workspaceFolder": "/workspace",
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=delegated",
@@ -47,6 +51,7 @@
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "git.autofetch": true,
+        "telemetry.telemetryLevel": "off",
         "ts.preferences.importModuleSpecifier": "non-relative",
         "[css]": {
           "editor.defaultFormatter": "esbenp.prettier-vscode"
