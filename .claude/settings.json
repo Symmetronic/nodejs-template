@@ -1,5 +1,19 @@
 {
   "permissions": {
     "deny": ["Read(//**/.env)"]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"$CLAUDE_PROJECT_DIR/.claude/hooks/check.sh\"",
+            "timeout": 300,
+            "statusMessage": "Running npm run check"
+          }
+        ]
+      }
+    ]
   }
 }
