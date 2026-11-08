@@ -1,17 +1,10 @@
 version: 2
-registries:
-  npm-default:
-    type: "npm-registry"
-    url: "https://registry.npmjs.org"
-    replaces-base: true
 updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "daily"
     versioning-strategy: increase
-    registries:
-      - npm-default
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
