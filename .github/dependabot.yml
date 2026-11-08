@@ -1,11 +1,13 @@
 version: 2
 updates:
   - package-ecosystem: "npm"
-    directory: "/"
+    directories:
+      - "**/*"
     schedule:
       interval: "daily"
     versioning-strategy: increase
   - package-ecosystem: "docker"
-    directory: "/"
+    directories:
+      - "**/*"
     schedule:
       interval: "daily"
