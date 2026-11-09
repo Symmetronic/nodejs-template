@@ -5,9 +5,13 @@ updates:
       - "**/*"
     schedule:
       interval: "daily"
+    cooldown:
+      default-days: 7
     versioning-strategy: increase
   - package-ecosystem: "docker"
     directories:
       - "**/*"
     schedule:
       interval: "daily"
+    cooldown:
+      default-days: 7
