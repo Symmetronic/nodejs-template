@@ -12,9 +12,9 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sh \"$CLAUDE_PROJECT_DIR/.claude/hooks/check.sh\"",
+            "command": "sh \"$CLAUDE_PROJECT_DIR/.claude/hooks/verify.sh\"",
             "timeout": 300,
-            "statusMessage": "Running npm run check"
+            "statusMessage": "Running npm run verify"
           }
         ]
       }

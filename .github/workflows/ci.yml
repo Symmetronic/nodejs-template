@@ -30,7 +30,5 @@ jobs:
             sh -c '
               set -e
               npm ci
-              npm run check
-              npm test
-              npm run build
+              npm run verify
             '
