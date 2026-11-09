@@ -6,12 +6,12 @@
   "scripts": {
     "build": "true",
     "check": "npm run format:check && npm run type:check && npm run lint:check && npm run license:check",
-    "fix": "npm run lint:fix && npm run format:fix",
+    "fix": "npm run lint:fix; npm run format:fix",
     "format:check": "prettier --check .",
     "format:fix": "prettier --write .",
     "license:check": "license-checker-rseidelsohn --excludePrivatePackages --summary --onlyAllow \"0BSD;Apache-2.0;BSD-2-Clause;BSD-3-Clause;BlueOak-1.0.0;CC-BY-3.0;CC-BY-4.0;CC0-1.0;ISC;MIT;Python-2.0;Unlicense;Zlib\"",
     "lint:check": "knip && eslint --max-warnings=0 .",
-    "lint:fix": "knip --fix && npm install && eslint --fix",
+    "lint:fix": "knip --fix; npm install && eslint --fix .",
     "prepare": "is-ci || husky",
     "test": "true",
     "type:check": "tsc --noEmit"
