@@ -14,7 +14,8 @@
     "lint:fix": "knip --fix; npm install && eslint --fix .",
     "prepare": "husky",
     "test": "true",
-    "type:check": "tsc --noEmit"
+    "type:check": "tsc --noEmit",
+    "verify": "npm run check && npm test && npm run build"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
