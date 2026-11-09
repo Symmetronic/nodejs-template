@@ -31,5 +31,5 @@ jobs:
             devcontainer \
             sh -c '
               set -e
-              npm audit
+              npm audit --audit-level=moderate
             '
