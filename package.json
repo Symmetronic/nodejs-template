@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "audit:check": "npm audit --audit-level=moderate",
+    "audit:fix": "npm audit fix",
     "build": "true",
     "check": "npm run format:check && npm run type:check && npm run lint:check && npm run license:check",
     "fix": "npm run lint:fix; npm run format:fix",
