@@ -13,6 +13,7 @@
   "workspaceFolder": "/workspace",
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=delegated",
   "mounts": [
+    "source=claude-config-${devcontainerId},target=/home/node/.claude,type=volume",
     "source=node-modules-${devcontainerId},target=/workspace/node_modules,type=volume"
   ],
   "postCreateCommand": "bash .devcontainer/scripts/post-create.sh",
