@@ -46,6 +46,19 @@ const recommendedConfigs: Config[] = [
       eqeqeq: "error",
     },
   },
+  {
+    name: "node-test",
+    rules: {
+      "@typescript-eslint/no-floating-promises": [
+        "error",
+        {
+          allowForKnownSafeCalls: [
+            { from: "package", package: "node:test", name: ["describe", "it"] },
+          ],
+        },
+      ],
+    },
+  },
   importX.flatConfigs.errors,
   importX.flatConfigs.typescript,
   {

@@ -2,7 +2,11 @@
   "name": "app",
   "version": "0.1.0",
   "private": true,
+  "author": "Simon Hochholzer",
   "type": "module",
+  "imports": {
+    "#/*": "./*"
+  },
   "scripts": {
     "audit:check": "npm audit --audit-level=moderate",
     "audit:fix": "npm audit fix",
@@ -15,7 +19,7 @@
     "lint:check": "knip && eslint --max-warnings=0 .",
     "lint:fix": "knip --fix; npm install && eslint --fix .",
     "prepare": "husky",
-    "test": "true",
+    "test": "node --test \"tests/**/*.test.ts\"",
     "type:check": "tsc --noEmit",
     "verify": "npm run check && npm test && npm run build"
   },
