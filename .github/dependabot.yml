@@ -8,6 +8,11 @@ updates:
     cooldown:
       default-days: 7
     versioning-strategy: increase
+    groups:
+      security:
+        applies-to: security-updates
+        patterns:
+          - "*"
   - package-ecosystem: "docker"
     directories:
       - "**/*"
