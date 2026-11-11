@@ -20,6 +20,12 @@ jobs:
       - name: Build Docker image
         run: docker build -t devcontainer .devcontainer
 
+      - name: Hand workspace to container user
+        run: |
+          sudo chown -R \
+            "$(docker run --rm devcontainer sh -c 'echo "$(id -u):$(id -g)"')" \
+            "${{ github.workspace }}"
+
       - name: Run CI checks
         run: |
           docker run --rm \
@@ -29,6 +35,6 @@ jobs:
             devcontainer \
             sh -c '
               set -e
-              npm ci
+              sh .devcontainer/scripts/post-create.sh
               npm run verify
             '
