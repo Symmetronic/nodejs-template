@@ -23,6 +23,7 @@ describe(".npmrc", () => {
       "allow-remote": "none",
       "ignore-scripts": true,
       "min-release-age": 7,
+      "save-exact": true,
     });
   });
 });
