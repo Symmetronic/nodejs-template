@@ -9,4 +9,11 @@ describe(".claude/settings.json", () => {
       "permissions.deny must contain Read(//**/.env)",
     );
   });
+
+  it("disables telemetry and error reporting, so that no usage data leaves the Dev Container", () => {
+    assert.partialDeepStrictEqual(settings.env, {
+      DISABLE_ERROR_REPORTING: "1",
+      DISABLE_TELEMETRY: "1",
+    });
+  });
 });
