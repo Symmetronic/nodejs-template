@@ -3,7 +3,7 @@ set -e
 
 prepare_node_modules() {
   sudo mkdir -p /workspace/node_modules
-  sudo chown -R node:node /workspace/node_modules
+  sudo chown -R "${USERNAME}:${USERNAME}" /workspace/node_modules
 }
 
 install_dependencies() {
