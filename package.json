@@ -20,7 +20,7 @@
     "lint:check": "knip && eslint --max-warnings=0 .",
     "lint:fix": "knip --fix; npm install && eslint --fix .",
     "prepare": "husky",
-    "test": "node --test \"tests/**/*.test.ts\"",
+    "test": "node --test \"tests/specs/**/*.spec.ts\"",
     "type:check": "tsc --noEmit",
     "verify": "npm run check && npm test && npm run build"
   },
