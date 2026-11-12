@@ -1,6 +1,5 @@
 import js from "@eslint/js";
 import prettierConfig from "eslint-config-prettier/flat";
-import functional from "eslint-plugin-functional";
 import { importX } from "eslint-plugin-import-x";
 import { defineConfig, globalIgnores } from "eslint/config";
 import tseslint from "typescript-eslint";
@@ -43,6 +42,7 @@ const recommendedConfigs: Config[] = [
         "error",
         { assertionStyle: "never" },
       ],
+      "@typescript-eslint/switch-exhaustiveness-check": "error",
       eqeqeq: "error",
     },
   },
@@ -70,12 +70,6 @@ const recommendedConfigs: Config[] = [
   },
 ];
 
-const liteSeverityNoMutationRules = Object.fromEntries(
-  Object.entries(functional.configs.lite.rules ?? {}).filter(
-    ([name]) => name in (functional.configs.noMutations.rules ?? {}),
-  ),
-);
-
 const stylisticConfigs: Config[] = [
   tseslint.configs.stylisticTypeChecked,
   {
@@ -85,11 +79,14 @@ const stylisticConfigs: Config[] = [
       "import-x/no-useless-path-segments": "error",
     },
   },
-  functional.configs.externalTypeScriptRecommended,
-  functional.configs.stylistic,
   {
-    name: "no-mutations",
-    rules: liteSeverityNoMutationRules,
+    name: "limit-mutations",
+    rules: {
+      "@typescript-eslint/prefer-readonly": "error",
+      "no-param-reassign": ["error", { props: true }],
+      "no-var": "error",
+      "prefer-const": "error",
+    },
   },
   {
     name: "no-debug-output",
