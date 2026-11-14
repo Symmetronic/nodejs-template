@@ -40,7 +40,7 @@ jobs:
             "$(docker run --rm devcontainer sh -c 'echo "$(id -u):$(id -g)"')" \
             "${{ github.workspace }}"
 
-      - name: Run CI checks
+      - name: Run verify
         run: |
           docker run --rm \
             -e CI=true \
