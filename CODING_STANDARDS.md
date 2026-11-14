@@ -28,6 +28,6 @@ The concrete rules live in the tool configuration files and scripts in this repo
 
 ## Commits and pull requests
 
-- Use [Conventional Commits](https://www.conventionalcommits.org/) with a capitalized summary, e.g. `chore: Add license check`.
+- Use [Conventional Commits](https://www.conventionalcommits.org/) with a capitalized summary, e.g. `chore: Add license check`. A `commit-msg` hook checks every message with commitlint.
 - Keep each commit focused on one change.
 - Changes reach `main` through pull requests.
