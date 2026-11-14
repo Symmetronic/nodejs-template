@@ -25,7 +25,7 @@
     "verify": "npm run check && npm test && npm run build"
   },
   "devDependencies": {
-    "@commitlint/cli": "21.2.4",
+    "@commitlint/cli": "21.2.3",
     "@commitlint/config-conventional": "21.2.3",
     "@commitlint/types": "21.2.3",
     "@eslint/js": "10.0.1",
