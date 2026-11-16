@@ -28,7 +28,10 @@ describe("browser", () => {
       });
 
       assert.notEqual(result["isError"], true, JSON.stringify(result));
-      assert.match(JSON.stringify(result["content"]), new RegExp(PAGE_TITLE));
+      assert.match(
+        JSON.stringify(result["content"]),
+        new RegExp(PAGE_TITLE, "u"),
+      );
     },
   );
 });
