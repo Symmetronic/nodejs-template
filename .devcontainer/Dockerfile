@@ -11,8 +11,10 @@ ENV DO_NOT_TRACK="1"
 ENV NPM_REGISTRY="https://registry.npmjs.org/"
 
 USER root
+
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends chromium \
+  && apt-get install -y --no-install-recommends \
+    chromium \
   && rm -rf /var/lib/apt/lists/*
 
 USER ${USERNAME}
