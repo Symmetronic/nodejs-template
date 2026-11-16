@@ -15,7 +15,7 @@ The concrete rules live in the tool configuration files and scripts in this repo
 ## Code design
 
 - **Deep modules.** Split code into modules, one per domain. Each hides a lot of logic behind a small, easy-to-understand interface that covers every caller's needs. Everything behind it is private.
-- **Test the interface.** Tests use only a module's public interface and treat the implementation as a black box.
+- **Test the interface.** Tests use only a module's public interface, treat the implementation as a black box and assert observable effects — return values, outputs, state changes visible to callers — never how they come about.
 - **Ubiquitous language.** One concept, one term, used everywhere: code, tests, docs. No synonyms.
 - **Code over comments.** Comments drift from the code; only the code is the truth. Make intent explicit with well-named functions and constants instead. Comment only what code cannot express, e.g. links to external sources or the reason behind a surprising decision.
 

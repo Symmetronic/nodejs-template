@@ -8,7 +8,9 @@
         "--headless",
         "--isolated",
         "--executablePath=/usr/bin/chromium",
-        "--chrome-arg=--no-sandbox"
+        "--chrome-arg=--no-sandbox",
+        "--no-usage-statistics",
+        "--no-performance-crux"
       ]
     }
   }
