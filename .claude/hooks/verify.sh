@@ -22,15 +22,19 @@ stopping_was_already_blocked_once() {
   '
 }
 
-cd "$PROJECT_DIRECTORY" || exit "$EXIT_CODE_THAT_ALLOWS_STOPPING"
+allow_stopping() {
+  exit "$EXIT_CODE_THAT_ALLOWS_STOPPING"
+}
 
-working_tree_has_changes || exit "$EXIT_CODE_THAT_ALLOWS_STOPPING"
+cd "$PROJECT_DIRECTORY" || allow_stopping
 
-run_verify_with_output_sent_to_agent && exit "$EXIT_CODE_THAT_ALLOWS_STOPPING"
+working_tree_has_changes || allow_stopping
+
+run_verify_with_output_sent_to_agent && allow_stopping
 
 if stopping_was_already_blocked_once; then
   echo "npm run verify still fails after one fix attempt; allowing stop so the agent cannot loop forever." >&2
-  exit "$EXIT_CODE_THAT_ALLOWS_STOPPING"
+  allow_stopping
 fi
 
 exit "$EXIT_CODE_THAT_BLOCKS_STOPPING"
