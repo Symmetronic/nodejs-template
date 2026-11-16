@@ -3,7 +3,8 @@
     "chrome-devtools": {
       "command": "npx",
       "args": [
-        "chrome-devtools-mcp@1.12.0",
+        "--no-install",
+        "chrome-devtools-mcp",
         "--headless",
         "--isolated",
         "--executablePath=/usr/bin/chromium",
