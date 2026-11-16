@@ -10,7 +10,7 @@ const MAX_DEPTH = 3;
 
 const recommendedConfigs: Config[] = [
   globalIgnores(
-    ["node_modules/", "dist/", "build/", "coverage/", ".claude/worktrees/"],
+    ["node_modules/", "dist/", "build/", "coverage/"],
     "global-ignores",
   ),
   {
