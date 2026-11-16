@@ -1,5 +1,6 @@
 {
   "autoMemoryEnabled": false,
+  "enabledMcpjsonServers": ["chrome-devtools"],
   "env": {
     "DISABLE_ERROR_REPORTING": "1",
     "DISABLE_TELEMETRY": "1"
