@@ -20,7 +20,7 @@ Read `.claude/skills/grilling/SKILL.md` and follow it to grill the user about th
 
 Read `.claude/skills/to-tasks/SKILL.md` and follow it, including the quiz, until the user approves the tasks.
 
-Choose the branch name as `<type>/<kebab-case-slug>`, where `<type>` is the Conventional Commits type that best fits the whole change (e.g. `feat/add-user-login`). Write the tasks file to `.claude/skills/delegate/runs/<branch>/TASKS.md`.
+Choose the branch name as `<type>/<kebab-case-slug>`, where `<type>` is the Conventional Commits type that best fits the whole change (e.g. `feat/add-user-login`). Before writing the tasks file, run `git check-ref-format --branch <branch>` and `git ls-remote --exit-code --heads origin <branch>`; if the name is invalid or the branch already exists on the remote, choose a different name. Write the tasks file to `.claude/skills/delegate/runs/<branch>/TASKS.md`.
 
 ## 3. Launch
 

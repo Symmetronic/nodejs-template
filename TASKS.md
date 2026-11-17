@@ -41,7 +41,7 @@ A review of the Claude skills found small inconsistencies in the vendored skills
 - The review step, pull request steps and secret handling are unchanged
 - The README's "Implement step" line says Claude (Sonnet) implements each task in its own fresh session, one commit per task, and the paragraph about pushing reflects that the branch is pushed after every task
 
-## [ ] 5. Check the branch name before writing the tasks file
+## [x] 5. Check the branch name before writing the tasks file
 
 **Blocked by:** None
 
