@@ -158,8 +158,7 @@ Never push. Never change other tasks in $TASKS_FILE_IN_REPOSITORY. Finish with a
 
 implement_tasks() {
   for task_number in $(unticked_task_numbers); do
-    current_step="implement step (task $task_number)"
-    echo "==> $current_step"
+    start_step "implement step (task $task_number)"
     implement_task "$task_number"
   done
   require_all_tasks_done
