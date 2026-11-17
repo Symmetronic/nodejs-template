@@ -59,6 +59,7 @@ interface World {
     crates: readonly Crate[],
   ) => void;
   readonly rayThrough: (frameX: number, frameY: number) => Ray;
+  readonly dispose: () => void;
 }
 
 // Face order of BoxGeometry: +x, -x, +y, -y, +z, -z
@@ -122,11 +123,13 @@ export function createWorld(level: Level): World {
     concrete: new MeshLambertMaterial({ map: textures.concrete }),
     floor: new MeshLambertMaterial({ map: textures.floor }),
   };
-  for (const box of level.boxes) {
-    const mesh = new Mesh(createTiledBox(box.size), materials[box.texture]);
+  const boxGeometries = level.boxes.map((box) => {
+    const geometry = createTiledBox(box.size);
+    const mesh = new Mesh(geometry, materials[box.texture]);
     mesh.position.set(box.center.x, box.center.y, box.center.z);
     scene.add(mesh);
-  }
+    return geometry;
+  });
 
   const lights = level.lights.map((definition, index) => {
     const light = new PointLight(LIGHT_COLOR, definition.intensity);
@@ -177,7 +180,8 @@ export function createWorld(level: Level): World {
     }
   }
 
-  const crateMaterial = new MeshLambertMaterial({ map: createCrateTexture() });
+  const crateTexture = createCrateTexture();
+  const crateMaterial = new MeshLambertMaterial({ map: crateTexture });
   const crateGeometry = new BoxGeometry(CRATE_SIZE, CRATE_SIZE, CRATE_SIZE);
   const crateMeshes = level.crates.map((position) => {
     const mesh = new Mesh(crateGeometry, crateMaterial);
@@ -190,9 +194,32 @@ export function createWorld(level: Level): World {
   let yaw: number | undefined;
   const raycaster = new Raycaster();
 
+  function dispose(): void {
+    for (const geometry of [...boxGeometries, crateGeometry]) {
+      geometry.dispose();
+    }
+    for (const material of [
+      ...Object.values(materials),
+      crateMaterial,
+      ...Array.from(sprites.values(), (sprite) => sprite.material),
+    ]) {
+      material.dispose();
+    }
+    for (const texture of [
+      ...Object.values(textures),
+      crateTexture,
+      ...zombieFrames.walk,
+      zombieFrames.flinch,
+      zombieFrames.fallen,
+    ]) {
+      texture.dispose();
+    }
+  }
+
   return {
     scene,
     camera,
+    dispose,
     rayThrough: (frameX, frameY) => {
       camera.updateMatrixWorld();
       raycaster.setFromCamera(

@@ -164,6 +164,9 @@ export function startGame(
       session.update(deltaSeconds);
       playAmbientSounds(deltaSeconds);
       render(now / MILLISECONDS_PER_SECOND, deltaSeconds);
+      if (session.status !== "playing") {
+        world.dispose();
+      }
       if (session.status === "gameover") {
         audio.play("gameOver");
         finish(() => {
