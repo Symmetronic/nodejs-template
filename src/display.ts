@@ -20,6 +20,7 @@ export const FRAME_HEIGHT = 284;
 
 interface Display {
   readonly frame: Frame;
+  readonly clearFrame: () => void;
   readonly presentFrame: () => void;
   readonly presentWorld: (scene: Scene, camera: Camera) => void;
 }
@@ -27,7 +28,10 @@ interface Display {
 function createFullScreenScene(texture: Texture): Scene {
   const scene = new Scene();
   scene.add(
-    new Mesh(new PlaneGeometry(1, 1), new MeshBasicMaterial({ map: texture })),
+    new Mesh(
+      new PlaneGeometry(1, 1),
+      new MeshBasicMaterial({ map: texture, transparent: true }),
+    ),
   );
   return scene;
 }
@@ -85,6 +89,9 @@ export function createDisplay(root: HTMLElement): Display {
 
   return {
     frame,
+    clearFrame: () => {
+      context.clearRect(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
+    },
     presentFrame: () => {
       frameTexture.needsUpdate = true;
       renderIntoTarget(frameScene, camera);
@@ -92,6 +99,12 @@ export function createDisplay(root: HTMLElement): Display {
     },
     presentWorld: (scene, worldCamera) => {
       renderIntoTarget(scene, worldCamera);
+      frameTexture.needsUpdate = true;
+      renderer.setRenderTarget(lowResolutionTarget);
+      renderer.autoClear = false;
+      renderer.render(frameScene, camera);
+      renderer.autoClear = true;
+      renderer.setRenderTarget(null);
       renderer.render(screenScene, camera);
     },
   };

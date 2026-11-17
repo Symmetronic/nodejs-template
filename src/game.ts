@@ -1,6 +1,7 @@
 import { type createDisplay } from "#/src/display.ts";
+import { drawGameOver, drawHud } from "#/src/hud.ts";
 import { LEVELS } from "#/src/levels/index.ts";
-import { createRail } from "#/src/rail.ts";
+import { createSession } from "#/src/session.ts";
 import { drawTitleScreen } from "#/src/title-screen.ts";
 import { createWorld } from "#/src/world.ts";
 
@@ -22,11 +23,32 @@ export function startGame(
 
   function play(): void {
     const [level] = LEVELS;
-    const rail = createRail(level.rail);
+    const session = createSession(level);
     const world = createWorld(level);
-    let distance = 0;
     let previous: number | undefined;
     dataset["screen"] = "playing";
+
+    function render(elapsedSeconds: number, deltaSeconds: number): void {
+      world.update(
+        session.cameraPosition,
+        session.cameraDirection,
+        deltaSeconds,
+        elapsedSeconds,
+        session.zombies,
+      );
+      display.clearFrame();
+      drawHud(
+        display.frame,
+        session.hearts,
+        session.maximumHearts,
+        session.hurtFlash,
+      );
+      dataset["hearts"] = String(session.hearts);
+      if (session.status === "gameover") {
+        drawGameOver(display.frame);
+      }
+      display.presentWorld(world.scene, world.camera);
+    }
 
     function frame(now: number): void {
       const deltaSeconds = Math.min(
@@ -34,15 +56,13 @@ export function startGame(
         (now - (previous ?? now)) / MILLISECONDS_PER_SECOND,
       );
       previous = now;
-      distance = rail.advance(distance, level.speed * deltaSeconds);
-      const { position, direction } = rail.sampleAt(distance);
-      world.update(
-        position,
-        direction,
-        deltaSeconds,
-        now / MILLISECONDS_PER_SECOND,
-      );
-      display.presentWorld(world.scene, world.camera);
+      session.update(deltaSeconds);
+      render(now / MILLISECONDS_PER_SECOND, deltaSeconds);
+      if (session.status === "gameover") {
+        dataset["screen"] = "gameover";
+        root.addEventListener("pointerdown", play, { once: true });
+        return;
+      }
       requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame);

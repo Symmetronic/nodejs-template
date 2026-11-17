@@ -2,6 +2,8 @@ import { FRAME_HEIGHT, FRAME_WIDTH } from "#/src/display.ts";
 import { type Level } from "#/src/level.ts";
 import { type Point } from "#/src/rail.ts";
 import { createTextures } from "#/src/textures.ts";
+import { createZombieFrames, ZOMBIE_ASPECT } from "#/src/zombie-sprites.ts";
+import { type Zombie } from "#/src/zombie.ts";
 import {
   AmbientLight,
   BoxGeometry,
@@ -12,6 +14,8 @@ import {
   PerspectiveCamera,
   PointLight,
   Scene,
+  Sprite,
+  SpriteMaterial,
 } from "three";
 
 const FIELD_OF_VIEW = 75;
@@ -34,6 +38,8 @@ const FLICKER_RATE_FAST = 31;
 const FLICKER_THRESHOLD = 0.55;
 const FLICKER_DIMMED = 0.2;
 const FLICKER_LIGHT_OFFSET = 7;
+const ZOMBIE_HEIGHT = 1.75;
+const HALF = 0.5;
 
 interface World {
   readonly scene: Scene;
@@ -43,6 +49,7 @@ interface World {
     direction: Point,
     deltaSeconds: number,
     elapsedSeconds: number,
+    zombies: readonly Zombie[],
   ) => void;
 }
 
@@ -124,13 +131,37 @@ export function createWorld(level: Level): World {
     return { light, definition, offset: index * FLICKER_LIGHT_OFFSET };
   });
 
+  const zombieMaterials = createZombieFrames().map(
+    (map) => new SpriteMaterial({ map }),
+  );
+  const sprites = new Map<Zombie, Sprite>();
+  function syncZombies(zombies: readonly Zombie[]): void {
+    for (const zombie of zombies) {
+      let sprite = sprites.get(zombie);
+      if (sprite === undefined) {
+        sprite = new Sprite();
+        sprite.scale.set(ZOMBIE_HEIGHT * ZOMBIE_ASPECT, ZOMBIE_HEIGHT, 1);
+        sprites.set(zombie, sprite);
+        scene.add(sprite);
+      }
+      const { position } = zombie;
+      sprite.position.set(
+        position.x,
+        position.y + ZOMBIE_HEIGHT * HALF,
+        position.z,
+      );
+      sprite.material = zombieMaterials[zombie.frame] ?? sprite.material;
+    }
+  }
+
   const camera = new PerspectiveCamera(FIELD_OF_VIEW, ASPECT, NEAR, FAR);
   let yaw: number | undefined;
 
   return {
     scene,
     camera,
-    update: (position, direction, deltaSeconds, elapsedSeconds) => {
+    update: (position, direction, deltaSeconds, elapsedSeconds, zombies) => {
+      syncZombies(zombies);
       const targetYaw = Math.atan2(-direction.x, -direction.z);
       const currentYaw = yaw ?? targetYaw;
       yaw =

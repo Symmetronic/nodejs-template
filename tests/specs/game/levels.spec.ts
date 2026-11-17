@@ -11,4 +11,16 @@ describe("level list", () => {
     assert.ok(first.lights.length > 0);
     assert.ok(first.speed > 0);
   });
+
+  it("places encounters in order along the rail with delayed zombies", () => {
+    const [first] = LEVELS;
+    const { length } = createRail(first.rail);
+    const stops = first.encounters.map((encounter) => encounter.stopDistance);
+    assert.deepEqual(
+      stops,
+      [...stops].sort((a, b) => a - b),
+    );
+    assert.ok(stops.every((stop) => stop > 0 && stop < length));
+    assert.ok(first.encounters.every((e) => e.zombies.length > 0));
+  });
 });

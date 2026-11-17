@@ -40,7 +40,7 @@ Design decisions:
 - Rail progress logic has unit tests (position and direction along waypoints, reaching the end).
 - `data-screen` becomes `playing` after the start tap; the smoke test asserts this.
 
-## [ ] 3. Zombies, encounters and dying
+## [x] 3. Zombies, encounters and dying
 
 **Blocked by:** 2
 

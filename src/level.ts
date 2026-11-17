@@ -14,9 +14,20 @@ interface Light {
   readonly flickers: boolean;
 }
 
+interface Spawn {
+  readonly position: Point;
+  readonly delay: number;
+}
+
+interface Encounter {
+  readonly stopDistance: number;
+  readonly zombies: readonly Spawn[];
+}
+
 export interface Level {
   readonly speed: number;
   readonly rail: readonly Point[];
   readonly boxes: readonly Box[];
   readonly lights: readonly Light[];
+  readonly encounters: readonly Encounter[];
 }
