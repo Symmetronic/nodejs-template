@@ -59,7 +59,6 @@ run_claude_session() {
   shift
   env -u GH_TOKEN \
     CLAUDE_CODE_OAUTH_TOKEN="$claude_token" \
-    CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=1 \
     claude --print --model "$model" --dangerously-skip-permissions "$@"
 }
 

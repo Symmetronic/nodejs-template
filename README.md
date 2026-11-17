@@ -28,4 +28,4 @@ Every commit is checked with `npm run verify` and the branch is pushed after eve
 
 ### Secrets
 
-The GitHub token is only used by the container's script to clone, push and create the pull request; Claude sessions never receive it. The Claude token is hidden from the commands, hooks and MCP servers Claude runs (`CLAUDE_CODE_SUBPROCESS_ENV_SCRUB`). The `claude` process itself must hold it, though, so a command run by Claude in the container could still read it from `/proc/<pid>/environ`. Revoke it if you suspect a leak.
+The GitHub token is only used by the container's script to clone, push and create the pull request; Claude sessions never receive it. The Claude token is visible to the commands, hooks and MCP servers Claude runs in the container. It can't be hidden from them: `CLAUDE_CODE_SUBPROCESS_ENV_SCRUB` needs unprivileged user namespaces, which Docker blocks by default, and it forces the permission mode back to default. Even with the scrub, the `claude` process itself holds the token, readable from `/proc/<pid>/environ`. Revoke it if you suspect a leak.
