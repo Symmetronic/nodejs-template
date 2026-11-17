@@ -112,6 +112,9 @@ export function createAudio(): Audio {
   let muted = readMuted();
 
   function unlock(): void {
+    if (!navigator.userActivation.isActive) {
+      return;
+    }
     try {
       context ??= new AudioContext();
       void context.resume().catch(() => undefined);
