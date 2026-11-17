@@ -1,16 +1,19 @@
-name: CI
+name: Continuous Integration
 
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: "0 9 * * *"
 
 permissions:
   contents: read
 
 jobs:
-  ci:
+  continuous-integration:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -21,8 +24,9 @@ jobs:
 
       - name: Detect dependency changes
         id: dependencies
+        if: github.event_name == 'pull_request'
         env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.sha }}
         run: |
           changed=true
@@ -55,7 +59,7 @@ jobs:
             '
 
       - name: Run audit
-        if: steps.dependencies.outputs.changed == 'true'
+        if: github.event_name != 'pull_request' || steps.dependencies.outputs.changed == 'true'
         run: |
           docker run --rm \
             -e CI=true \
