@@ -83,10 +83,10 @@ copy_inputs_into_container() {
 }
 
 run_delegate() {
-  require_docker
   require_secret CLAUDE_CODE_OAUTH_TOKEN
   require_secret GH_TOKEN
   require_git_identity
+  require_docker
   require_no_container_for_branch
 
   trap remove_container EXIT
