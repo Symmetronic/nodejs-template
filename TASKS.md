@@ -12,7 +12,7 @@ A review of the Claude skills found small inconsistencies in the vendored skills
 - The frontmatter `metadata` block (with `credits`) is removed; `name` and `description` stay
 - The pr skill's CREDITS file says it is vendored from Matt Pocock's `pr` skill (same commit link) with two changes: the `GLOSSARY.md` sentence was dropped, and the frontmatter `metadata.credits` block was dropped because that attribution lives in the CREDITS file. The Dex Horthy / `show-me` paragraph stays
 
-## [ ] 2. Credit the grilling skill's source
+## [x] 2. Credit the grilling skill's source
 
 **Blocked by:** None
 
