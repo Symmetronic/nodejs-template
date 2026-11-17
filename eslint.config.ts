@@ -7,6 +7,23 @@ import tseslint from "typescript-eslint";
 type Config = Parameters<typeof defineConfig>[number];
 
 const MAX_DEPTH = 3;
+const MAX_COMPLEXITY = 10;
+const MAX_FILE_LINES = 300;
+const MAX_FUNCTION_LINES = 50;
+const MAX_PARAMS = 4;
+const MAX_STATEMENTS = 20;
+
+const TEST_FILES = "tests/specs/**/*.spec.ts";
+
+const RELATIVE_IMPORTS = {
+  regex: String.raw`^\.\.?/`,
+  message: 'Import with the "#/" alias, e.g. "#/src/module.ts".',
+};
+
+const TEST_FRAMEWORK_IMPORTS = {
+  name: "node:test",
+  message: `Put tests in ${TEST_FILES}, so that \`npm test\` runs them.`,
+};
 
 const recommendedConfigs: Config[] = [
   globalIgnores(
@@ -68,6 +85,22 @@ const recommendedConfigs: Config[] = [
       "import-x/no-self-import": "error",
     },
   },
+  {
+    name: "consistent-imports",
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        { paths: [TEST_FRAMEWORK_IMPORTS], patterns: [RELATIVE_IMPORTS] },
+      ],
+    },
+  },
+  {
+    name: "test-location",
+    files: [TEST_FILES],
+    rules: {
+      "no-restricted-imports": ["error", { patterns: [RELATIVE_IMPORTS] }],
+    },
+  },
 ];
 
 const stylisticConfigs: Config[] = [
@@ -118,10 +151,48 @@ const stylisticConfigs: Config[] = [
       "no-nested-ternary": "error",
     },
   },
+  {
+    name: "limit-size",
+    rules: {
+      complexity: ["error", MAX_COMPLEXITY],
+      "max-lines": [
+        "error",
+        { max: MAX_FILE_LINES, skipBlankLines: true, skipComments: true },
+      ],
+      "max-lines-per-function": [
+        "error",
+        { max: MAX_FUNCTION_LINES, skipBlankLines: true, skipComments: true },
+      ],
+      "max-params": ["error", MAX_PARAMS],
+      "max-statements": ["error", MAX_STATEMENTS],
+    },
+  },
+  {
+    // A `describe` callback is a list of independent test cases, so its
+    // length says nothing about readability. `max-lines` still caps each file.
+    name: "limit-size-of-tests",
+    files: [TEST_FILES],
+    rules: {
+      "max-lines-per-function": "off",
+      "max-statements": "off",
+    },
+  },
+];
+
+// eslint-config-prettier turns these off, but they don't conflict with
+// Prettier in this configuration: https://github.com/prettier/eslint-config-prettier#special-rules
+const rulesAfterPrettier: Config[] = [
+  {
+    name: "explicit-blocks",
+    rules: {
+      curly: ["error", "all"],
+    },
+  },
 ];
 
 export default defineConfig(
   ...recommendedConfigs,
   ...stylisticConfigs,
   prettierConfig,
+  ...rulesAfterPrettier,
 );

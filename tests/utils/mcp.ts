@@ -1,5 +1,5 @@
 import { assertIsObject } from "#/tests/utils/assert.ts";
-import { spawn } from "node:child_process";
+import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
 import { once } from "node:events";
 import { createInterface } from "node:readline";
 
@@ -15,72 +15,62 @@ interface McpClient extends AsyncDisposable {
   ) => Promise<Readonly<Record<string, unknown>>>;
 }
 
+type JsonObject = Readonly<Record<string, unknown>>;
+
 // https://modelcontextprotocol.io/specification/2025-11-25/basic/lifecycle
 const PROTOCOL_VERSION = "2025-11-25";
 
 interface PendingRequest {
-  readonly resolve: (message: Readonly<Record<string, unknown>>) => void;
+  readonly resolve: (message: JsonObject) => void;
   readonly reject: (error: Error) => void;
 }
 
-export async function connectMcpServer(
-  config: McpServerConfig,
-): Promise<McpClient> {
-  const server = spawn(config.command, config.args, {
-    stdio: ["pipe", "pipe", "pipe"],
-  });
-  const pendingRequests = new Map<number, PendingRequest>();
-  let nextId = 1;
-  let stderr = "";
-  let failure: Error | undefined;
+class JsonRpcProcess implements AsyncDisposable {
+  readonly #server: ChildProcessWithoutNullStreams;
+  readonly #pendingRequests = new Map<number, PendingRequest>();
+  #nextId = 1;
+  #stderr = "";
+  #failure: Error | undefined;
 
-  function fail(error: Error): void {
-    failure ??= error;
-    for (const pending of pendingRequests.values()) {
-      pending.reject(failure);
-    }
-    pendingRequests.clear();
+  constructor(config: McpServerConfig) {
+    this.#server = spawn(config.command, config.args, {
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+    this.#server.stderr.setEncoding("utf8").on("data", (chunk: string) => {
+      this.#stderr += chunk;
+    });
+    this.#server.on("error", (error) => {
+      this.#fail(error);
+    });
+    // A broken stdin pipe means the server exited; the exit handler reports why.
+    this.#server.stdin.on("error", () => undefined);
+    this.#server.on("exit", (code, signal) => {
+      this.#fail(
+        new Error(
+          `MCP server exited (code ${String(code)}, signal ${String(signal)}): ${this.#stderr}`,
+        ),
+      );
+    });
+    createInterface({ input: this.#server.stdout }).on("line", (line) => {
+      this.#receive(line);
+    });
   }
 
-  server.stderr.setEncoding("utf8").on("data", (chunk: string) => {
-    stderr += chunk;
-  });
-  server.on("error", fail);
-  // A broken stdin pipe means the server exited; the exit handler reports why.
-  server.stdin.on("error", () => undefined);
-  server.on("exit", (code, signal) => {
-    fail(
-      new Error(
-        `MCP server exited (code ${String(code)}, signal ${String(signal)}): ${stderr}`,
-      ),
+  send(message: JsonObject): void {
+    this.#server.stdin.write(
+      `${JSON.stringify({ jsonrpc: "2.0", ...message })}\n`,
     );
-  });
-
-  createInterface({ input: server.stdout }).on("line", (line) => {
-    const message: unknown = JSON.parse(line);
-    assertIsObject(message, "MCP server must send JSON-RPC objects");
-    if (typeof message["id"] === "number") {
-      pendingRequests.get(message["id"])?.resolve(message);
-      pendingRequests.delete(message["id"]);
-    }
-  });
-
-  function send(message: Readonly<Record<string, unknown>>): void {
-    server.stdin.write(`${JSON.stringify({ jsonrpc: "2.0", ...message })}\n`);
   }
 
-  async function request(
-    method: string,
-    params: Readonly<Record<string, unknown>>,
-  ): Promise<Readonly<Record<string, unknown>>> {
-    if (failure) {
-      throw failure;
+  async request(method: string, params: JsonObject): Promise<JsonObject> {
+    if (this.#failure) {
+      throw this.#failure;
     }
-    const id = nextId++;
-    const response = new Promise<Readonly<Record<string, unknown>>>(
-      (resolve, reject) => pendingRequests.set(id, { resolve, reject }),
+    const id = this.#nextId++;
+    const response = new Promise<JsonObject>((resolve, reject) =>
+      this.#pendingRequests.set(id, { resolve, reject }),
     );
-    send({ id, method, params });
+    this.send({ id, method, params });
     const message = await response;
     assertIsObject(
       message["result"],
@@ -89,22 +79,48 @@ export async function connectMcpServer(
     return message["result"];
   }
 
-  await request("initialize", {
+  async [Symbol.asyncDispose](): Promise<void> {
+    if (this.#server.exitCode !== null || this.#server.signalCode !== null) {
+      return;
+    }
+    const exited = once(this.#server, "exit");
+    this.#server.kill();
+    await exited;
+  }
+
+  #receive(line: string): void {
+    const message: unknown = JSON.parse(line);
+    assertIsObject(message, "MCP server must send JSON-RPC objects");
+    if (typeof message["id"] === "number") {
+      this.#pendingRequests.get(message["id"])?.resolve(message);
+      this.#pendingRequests.delete(message["id"]);
+    }
+  }
+
+  #fail(error: Error): void {
+    this.#failure ??= error;
+    for (const pending of this.#pendingRequests.values()) {
+      pending.reject(this.#failure);
+    }
+    this.#pendingRequests.clear();
+  }
+}
+
+export async function connectMcpServer(
+  config: McpServerConfig,
+): Promise<McpClient> {
+  const server = new JsonRpcProcess(config);
+
+  await server.request("initialize", {
     protocolVersion: PROTOCOL_VERSION,
     capabilities: {},
     clientInfo: { name: "tests", version: "0.0.0" },
   });
-  send({ method: "notifications/initialized" });
+  server.send({ method: "notifications/initialized" });
 
   return {
-    callTool: (name, args) => request("tools/call", { name, arguments: args }),
-    [Symbol.asyncDispose]: async () => {
-      if (server.exitCode !== null || server.signalCode !== null) {
-        return;
-      }
-      const exited = once(server, "exit");
-      server.kill();
-      await exited;
-    },
+    callTool: async (name, args) =>
+      server.request("tools/call", { name, arguments: args }),
+    [Symbol.asyncDispose]: async () => server[Symbol.asyncDispose](),
   };
 }
