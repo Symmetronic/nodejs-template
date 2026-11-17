@@ -1,5 +1,5 @@
 import { build, context, type BuildOptions } from "esbuild";
-import { copyFile, mkdir } from "node:fs/promises";
+import { copyFile, mkdir, rm } from "node:fs/promises";
 import { parseArgs } from "node:util";
 
 const DEFAULT_OUTPUT_DIRECTORY = "dist";
@@ -20,6 +20,7 @@ const options: BuildOptions = {
   logLevel: "info",
 };
 
+await rm(outputDirectory, { recursive: true, force: true });
 await mkdir(outputDirectory, { recursive: true });
 await copyFile("src/index.html", `${outputDirectory}/index.html`);
 
