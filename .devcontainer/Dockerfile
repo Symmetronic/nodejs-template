@@ -13,15 +13,13 @@ ENV NPM_REGISTRY="https://registry.npmjs.org/"
 
 USER root
 
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends \
-    chromium \
-  && rm -rf /var/lib/apt/lists/*
-
 RUN curl -fsSL --output /tmp/gh.deb \
     "https://github.com/cli/cli/releases/download/v${GITHUB_CLI_VERSION}/gh_${GITHUB_CLI_VERSION}_linux_$(dpkg --print-architecture).deb" \
-  && apt-get install -y --no-install-recommends /tmp/gh.deb \
-  && rm /tmp/gh.deb
+  && apt-get update \
+  && apt-get install -y --no-install-recommends \
+    chromium \
+    /tmp/gh.deb \
+  && rm -rf /var/lib/apt/lists/* /tmp/gh.deb
 
 USER ${USERNAME}
 
