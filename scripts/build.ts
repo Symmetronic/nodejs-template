@@ -18,25 +18,31 @@ function bundleOptions(outputDirectory: string): BuildOptions {
   };
 }
 
-async function copyPage(outputDirectory: string): Promise<void> {
+const STATIC_FILES = ["index.html", "assets/infected-sector.m4a"];
+
+async function copyStaticFiles(outputDirectory: string): Promise<void> {
   await mkdir(outputDirectory, { recursive: true });
-  await copyFile(
-    `${PROJECT_DIRECTORY}src/index.html`,
-    `${outputDirectory}/index.html`,
+  await Promise.all(
+    STATIC_FILES.map(async (file) =>
+      copyFile(
+        `${PROJECT_DIRECTORY}src/${file}`,
+        `${outputDirectory}/${file.slice(file.lastIndexOf("/") + 1)}`,
+      ),
+    ),
   );
 }
 
 async function buildGame(
   outputDirectory = DEFAULT_OUTPUT_DIRECTORY,
 ): Promise<void> {
-  await copyPage(outputDirectory);
+  await copyStaticFiles(outputDirectory);
   await build({ ...bundleOptions(outputDirectory), minify: true });
 }
 
 async function serveGame(
   outputDirectory = DEFAULT_OUTPUT_DIRECTORY,
 ): Promise<void> {
-  await copyPage(outputDirectory);
+  await copyStaticFiles(outputDirectory);
   const watching = await context({
     ...bundleOptions(outputDirectory),
     sourcemap: "inline",

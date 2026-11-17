@@ -15,6 +15,7 @@ const SUBPATH = "/games/zombies/";
 const CONTENT_TYPES: Readonly<Record<string, string>> = {
   ".html": "text/html",
   ".js": "text/javascript",
+  ".m4a": "audio/mp4",
 };
 
 function textOf(result: Readonly<Record<string, unknown>>): string {

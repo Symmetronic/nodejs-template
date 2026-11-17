@@ -30,6 +30,9 @@ interface Recipe {
 }
 
 const MASTER_VOLUME = 0.4;
+// Kept well below the sound effects, so shots and zombies stay audible over the music.
+const SOUNDTRACK_VOLUME = 0.15;
+const SOUNDTRACK_URL = "./infected-sector.m4a";
 const SILENCE = 0.0001;
 const NOTE_SECONDS = 0.16;
 const NOISE_LOWER = -1;
@@ -94,6 +97,27 @@ const RECIPES: Readonly<Record<Sound, Recipe>> = {
   },
 };
 
+async function loadSoundtrack(target: AudioContext): Promise<AudioBuffer> {
+  const response = await fetch(SOUNDTRACK_URL);
+  if (!response.ok) {
+    throw new Error(
+      `The soundtrack failed to load: ${String(response.status)}`,
+    );
+  }
+  return target.decodeAudioData(await response.arrayBuffer());
+}
+
+function loopSoundtrack(target: AudioContext, buffer: AudioBuffer): void {
+  const gain = target.createGain();
+  gain.gain.value = SOUNDTRACK_VOLUME;
+  gain.connect(target.destination);
+  const source = target.createBufferSource();
+  source.buffer = buffer;
+  source.loop = true;
+  source.connect(gain);
+  source.start();
+}
+
 export interface Audio {
   readonly unlock: () => void;
   readonly play: (sound: Sound) => void;
@@ -102,6 +126,20 @@ export interface Audio {
 export function createAudio(): Audio {
   let context: AudioContext | undefined;
   let noiseBuffer: AudioBuffer | undefined;
+  let soundtrackStarted = false;
+
+  function startSoundtrack(target: AudioContext): void {
+    if (soundtrackStarted) {
+      return;
+    }
+    soundtrackStarted = true;
+    loadSoundtrack(target).then(
+      (buffer) => {
+        loopSoundtrack(target, buffer);
+      },
+      () => undefined,
+    );
+  }
 
   function createNoiseBuffer(target: AudioContext): AudioBuffer {
     const buffer = target.createBuffer(1, target.sampleRate, target.sampleRate);
@@ -154,6 +192,7 @@ export function createAudio(): Audio {
       try {
         context ??= new AudioContext();
         void context.resume().catch(() => undefined);
+        startSoundtrack(context);
       } catch {
         context = undefined;
       }

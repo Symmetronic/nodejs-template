@@ -13,6 +13,7 @@
 *.otf binary
 *.eot binary
 *.pdf binary
+*.m4a binary
 *.zip binary
 *.gz binary
 *.tar binary
