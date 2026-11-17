@@ -62,6 +62,15 @@ export function isComputerTurn(session: Session): boolean {
   );
 }
 
+export function hasComputerWon(session: Session): boolean {
+  const { outcome } = session.game;
+  return (
+    session.mode === "computer" &&
+    outcome.status === "won" &&
+    outcome.winner === COMPUTER_MARK
+  );
+}
+
 function applyMove(session: Session, index: number): Session {
   const game = playMove(session.game, index);
   if (game === session.game) {

@@ -46,7 +46,7 @@ Build a browser tic-tac-toe game with neon visual effects and synthesized Web Au
 - Under `prefers-reduced-motion` the shake and particles are disabled or strongly toned down, and stroke animations are near-instant
 - Effects never block input for the next round, and restart clears any running effects
 
-## [ ] 5. Web Audio sounds and mute toggle
+## [x] 5. Web Audio sounds and mute toggle
 
 **Blocked by:** 2
 

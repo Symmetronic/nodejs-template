@@ -1,8 +1,10 @@
+import { createAudio } from "#/src/audio.ts";
 import { type Difficulty } from "#/src/computer.ts";
 import { clearMark, createEffects, drawMark } from "#/src/effects.ts";
 import { isPlayable, type Game } from "#/src/game.ts";
 import {
   createSession,
+  hasComputerWon,
   isComputerTurn,
   playComputerMove,
   playSessionMove,
@@ -44,6 +46,7 @@ function parseDifficulty(value: string): Difficulty {
 const boardElement = requireElement("board");
 const statusElement = requireElement("status");
 const restartElement = requireElement("restart");
+const muteElement = requireElement("mute");
 const modeElement = requireSelect("mode");
 const difficultyElement = requireSelect("difficulty");
 const scoreElements = {
@@ -52,6 +55,7 @@ const scoreElements = {
   draws: requireElement("score-draws"),
 };
 
+const audio = createAudio();
 let session = createSession();
 let renderedGame: Game | undefined;
 let computerMoveTimer: ReturnType<typeof setTimeout> | undefined;
@@ -105,6 +109,11 @@ const cellElements = session.game.board.map((_, index) => {
   cell.addEventListener("click", () => {
     update(playSessionMove(session, index));
   });
+  cell.addEventListener("mouseenter", () => {
+    if (isPlayable(session.game, index) && !isComputerTurn(session)) {
+      audio.play("hover");
+    }
+  });
   cell.addEventListener("keydown", (event) => {
     if (event.key.startsWith("Arrow")) {
       event.preventDefault();
@@ -118,7 +127,13 @@ const cellElements = session.game.board.map((_, index) => {
 const effects = createEffects(boardElement, cellElements);
 
 restartElement.addEventListener("click", () => {
+  audio.play("restart");
   update(startNextRound(session));
+});
+
+muteElement.addEventListener("click", () => {
+  audio.setMuted(!audio.isMuted());
+  renderMuteButton();
 });
 
 modeElement.addEventListener("change", () => {
@@ -150,8 +165,14 @@ function renderMarks(game: Game): void {
       clearMark(cell);
     } else {
       drawMark(cell, mark);
+      audio.play(`place-${mark}`);
     }
   }
+}
+
+function renderMuteButton(): void {
+  muteElement.textContent = audio.isMuted() ? "Unmute" : "Mute";
+  muteElement.ariaPressed = String(audio.isMuted());
 }
 
 function renderEffects(game: Game): void {
@@ -160,8 +181,10 @@ function renderEffects(game: Game): void {
   } else if (renderedGame?.outcome.status === "in-progress") {
     if (game.outcome.status === "won") {
       effects.showWin(game.outcome.line, game.outcome.winner);
+      audio.play(hasComputerWon(session) ? "womp" : "win");
     } else {
       effects.showDraw();
+      audio.play("womp");
     }
   }
 }
@@ -192,4 +215,5 @@ function render(): void {
   scoreElements.draws.textContent = String(scores.draws);
 }
 
+renderMuteButton();
 render();

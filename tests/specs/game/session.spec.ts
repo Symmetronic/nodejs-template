@@ -1,6 +1,7 @@
 import { type Game } from "#/src/game.ts";
 import {
   createSession,
+  hasComputerWon,
   isComputerTurn,
   playComputerMove,
   playSessionMove,
@@ -104,6 +105,19 @@ describe("session", () => {
       assert.equal(afterReply.game.board[CENTER], "O");
       const afterBlock = playComputerMove(playSessionMove(afterReply, 1));
       assert.equal(afterBlock.game.board[TOP_RIGHT], "O");
+    });
+
+    it("reports when the computer has won", () => {
+      let session = selectDifficulty(versusComputer(), "hard");
+      assert.equal(hasComputerWon(session), false);
+      while (session.game.outcome.status === "in-progress") {
+        const lowestFreeCell = session.game.board.indexOf(undefined);
+        session = isComputerTurn(session)
+          ? playComputerMove(session)
+          : playSessionMove(session, lowestFreeCell);
+      }
+      assert.equal(hasComputerWon(session), true);
+      assert.equal(hasComputerWon(startNextRound(session)), false);
     });
 
     it("lets the computer start the second round", () => {
