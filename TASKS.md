@@ -14,7 +14,7 @@ Build a browser tic-tac-toe game with neon visual effects and synthesized Web Au
 - An end-to-end test builds the game itself (it must not rely on a prior `npm run build`, since `verify` runs tests before the build), loads the page in the browser via the chrome-devtools MCP, plays a game to a win, and asserts the result is shown and there are no console errors
 - `npm run verify` passes (format, types, lint incl. knip, licenses, tests, build)
 
-## [ ] 2. Turns, scoreboard, restart and keyboard play
+## [x] 2. Turns, scoreboard, restart and keyboard play
 
 **Blocked by:** 1
 

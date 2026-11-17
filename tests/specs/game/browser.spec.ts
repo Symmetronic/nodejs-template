@@ -83,7 +83,8 @@ describe("browser", () => {
           return {
             status: document.getElementById("status").textContent,
             marks: cells.map((cell) => cell.textContent).join(""),
-            disabled: cells.every((cell) => cell.disabled),
+            scores: document.getElementById("scoreboard").textContent.replace(/\\s+/g, " ").trim(),
+            disabled: cells.every((cell) => cell.ariaDisabled === "true"),
           };
         }`,
       });
@@ -91,6 +92,18 @@ describe("browser", () => {
       assert.match(text, /X wins!/u);
       assert.match(text, /XXXOO/u);
       assert.match(text, /"disabled":true/u);
+      assert.match(text, /X wins: 1 O wins: 0 Draws: 0/u);
+
+      const restarted = textOf(
+        await client.callTool("evaluate_script", {
+          pageId,
+          function: `() => {
+            document.getElementById("restart").click();
+            return document.getElementById("status").textContent;
+          }`,
+        }),
+      );
+      assert.match(restarted, /O to move/u);
 
       const messages = textOf(
         await client.callTool("list_console_messages", { pageId }),
