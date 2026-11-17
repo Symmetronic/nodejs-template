@@ -179,20 +179,8 @@ const stylisticConfigs: Config[] = [
   },
 ];
 
-// eslint-config-prettier turns these off, but they don't conflict with
-// Prettier in this configuration: https://github.com/prettier/eslint-config-prettier#special-rules
-const rulesAfterPrettier: Config[] = [
-  {
-    name: "explicit-blocks",
-    rules: {
-      curly: ["error", "all"],
-    },
-  },
-];
-
 export default defineConfig(
   ...recommendedConfigs,
   ...stylisticConfigs,
   prettierConfig,
-  ...rulesAfterPrettier,
 );
