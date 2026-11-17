@@ -1,5 +1,6 @@
 const GLYPH_WIDTH = 3;
 const GLYPH_HEIGHT = 5;
+const HALF = 0.5;
 const LETTER_SPACING = 1;
 
 const GLYPHS: Readonly<Record<string, string>> = {
@@ -90,6 +91,16 @@ export function drawText(
       }
     });
   });
+}
+
+export function drawCenteredText(
+  frame: Frame,
+  text: string,
+  y: number,
+  color: string,
+): void {
+  const x = Math.floor((frame.width - measureText(text)) * HALF);
+  drawText(frame, text, x, y, color);
 }
 
 export const FONT_HEIGHT = GLYPH_HEIGHT;

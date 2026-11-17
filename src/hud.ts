@@ -1,10 +1,10 @@
 import {
+  drawCenteredText,
   drawText,
   FONT_HEIGHT,
   measureText,
   type Frame,
 } from "#/src/pixel-font.ts";
-
 const HEART_SIZE = 7;
 const HEART_GAP = 2;
 const MARGIN = 4;
@@ -52,21 +52,6 @@ function drawHeart(frame: Frame, x: number, y: number, color: string): void {
       }
     });
   });
-}
-
-function drawCentered(
-  frame: Frame,
-  text: string,
-  y: number,
-  color: string,
-): void {
-  drawText(
-    frame,
-    text,
-    Math.floor((frame.width - measureText(text)) * HALF),
-    y,
-    color,
-  );
 }
 
 interface HudState {
@@ -146,12 +131,22 @@ export function drawHud(frame: Frame, state: HudState): void {
 
 export function drawGameOver(frame: Frame): void {
   frame.fillRect(SHADE, 0, 0, frame.width, frame.height);
-  drawCentered(frame, "GAME OVER", GAME_OVER_TOP, TITLE_COLOR);
-  drawCentered(frame, "TAP TO RESTART", PROMPT_TOP + FONT_HEIGHT, PROMPT_COLOR);
+  drawCenteredText(frame, "GAME OVER", GAME_OVER_TOP, TITLE_COLOR);
+  drawCenteredText(
+    frame,
+    "TAP TO RESTART",
+    PROMPT_TOP + FONT_HEIGHT,
+    PROMPT_COLOR,
+  );
 }
 
 export function drawLevelClear(frame: Frame): void {
   frame.fillRect(SHADE, 0, 0, frame.width, frame.height);
-  drawCentered(frame, "LEVEL CLEAR", GAME_OVER_TOP, CLEAR_COLOR);
-  drawCentered(frame, "TAP TO RESTART", PROMPT_TOP + FONT_HEIGHT, PROMPT_COLOR);
+  drawCenteredText(frame, "LEVEL CLEAR", GAME_OVER_TOP, CLEAR_COLOR);
+  drawCenteredText(
+    frame,
+    "TAP TO RESTART",
+    PROMPT_TOP + FONT_HEIGHT,
+    PROMPT_COLOR,
+  );
 }
