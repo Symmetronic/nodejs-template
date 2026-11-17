@@ -1,3 +1,4 @@
+import { createAudio } from "#/src/audio.ts";
 import { nextLevel } from "#/src/campaign.ts";
 import { type createDisplay } from "#/src/display.ts";
 import {
@@ -18,6 +19,15 @@ const MAXIMUM_DELTA_SECONDS = 0.1;
 const MUZZLE_FLASH_SECONDS = 0.08;
 const SPARK_SECONDS = 0.12;
 const RESTART_LOCK_MILLISECONDS = 600;
+const GROAN_MINIMUM_SECONDS = 3;
+const GROAN_MAXIMUM_SECONDS = 7;
+
+function nextGroanSeconds(): number {
+  return (
+    GROAN_MINIMUM_SECONDS +
+    Math.random() * (GROAN_MAXIMUM_SECONDS - GROAN_MINIMUM_SECONDS)
+  );
+}
 
 interface Spark {
   readonly x: number;
@@ -30,6 +40,7 @@ export function startGame(
   display: ReturnType<typeof createDisplay>,
 ): void {
   const { dataset } = root;
+  const audio = createAudio();
   let onTap: (event: PointerEvent) => void = () => undefined;
   root.addEventListener("pointerdown", (event) => {
     onTap(event);
@@ -40,6 +51,7 @@ export function startGame(
     drawTitleScreen(display.frame);
     display.presentFrame();
     onTap = () => {
+      audio.unlock();
       play(LEVELS[0]);
     };
   }
@@ -50,14 +62,28 @@ export function startGame(
     let previous: number | undefined;
     let muzzleSeconds = 0;
     let spark: Spark | undefined;
+    let groanSeconds = nextGroanSeconds();
+    let knownHearts = session.hearts;
     dataset["screen"] = "playing";
     syncDataset(session);
     onTap = (event) => {
       const point = display.toFramePoint(event.clientX, event.clientY);
+      const livingBefore = session.zombies.filter(
+        (zombie) => zombie.alive,
+      ).length;
       const result = session.shoot(world.rayThrough(point.x, point.y));
       syncDataset(session);
       if (result === "none") {
         return;
+      }
+      audio.play(result === "dry" ? "dry" : "gunshot");
+      if (result === "crate") {
+        audio.play("pickup");
+      } else if (result === "body" || result === "head") {
+        const killed =
+          session.zombies.filter((zombie) => zombie.alive).length <
+          livingBefore;
+        audio.play(killed ? "zombieDeath" : "zombieHit");
       }
       if (result !== "dry") {
         muzzleSeconds = MUZZLE_FLASH_SECONDS;
@@ -70,6 +96,20 @@ export function startGame(
     function syncDataset(current: Session): void {
       dataset["hearts"] = String(current.hearts);
       dataset["ammo"] = String(current.ammo);
+    }
+
+    function playAmbientSounds(deltaSeconds: number): void {
+      if (session.hearts < knownHearts) {
+        audio.play("hurt");
+      }
+      knownHearts = session.hearts;
+      groanSeconds -= deltaSeconds;
+      if (groanSeconds <= 0) {
+        groanSeconds = nextGroanSeconds();
+        if (session.zombies.some((zombie) => zombie.alive)) {
+          audio.play("groan");
+        }
+      }
     }
 
     function render(elapsedSeconds: number, deltaSeconds: number): void {
@@ -122,8 +162,10 @@ export function startGame(
       );
       previous = now;
       session.update(deltaSeconds);
+      playAmbientSounds(deltaSeconds);
       render(now / MILLISECONDS_PER_SECOND, deltaSeconds);
       if (session.status === "gameover") {
+        audio.play("gameOver");
         finish(() => {
           play(level);
         }, "gameover");
@@ -132,6 +174,7 @@ export function startGame(
       if (session.status === "cleared") {
         const following = nextLevel(LEVELS, level);
         if (following === undefined) {
+          audio.play("levelClear");
           finish(() => {
             play(LEVELS[0]);
           }, "clear");

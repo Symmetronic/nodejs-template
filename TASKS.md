@@ -62,7 +62,7 @@ Design decisions:
 - Shooting, ammo, crate and level progression logic have unit tests.
 - The smoke test asserts that a tap while playing decreases `data-ammo` by 1.
 
-## [ ] 5. Synthesized sounds
+## [x] 5. Synthesized sounds
 
 **Blocked by:** 4
 
