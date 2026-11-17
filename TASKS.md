@@ -20,7 +20,7 @@ A review of the Claude skills found small inconsistencies in the vendored skills
 
 - A CREDITS file next to the grilling skill, in the same style as the pr skill's, says it is vendored verbatim from [Matt Pocock](https://github.com/mattpocock)'s [`grilling`](https://github.com/mattpocock/skills/tree/5863806dd4e15c63174bee4e7515a4256792ecfa/skills/productivity/grilling) skill (commit `5863806dd4e15c63174bee4e7515a4256792ecfa`), licensed under MIT (see LICENSE)
 
-## [ ] 3. Remove the Codex agent metadata
+## [x] 3. Remove the Codex agent metadata
 
 **Blocked by:** None
 
