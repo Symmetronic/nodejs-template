@@ -2,7 +2,7 @@
 
 Build a browser tic-tac-toe game with neon visual effects and synthesized Web Audio sounds, deployable as static files. The game is written in TypeScript under `src/` and bundled with esbuild, which is the only new dependency. `npm run build` outputs a hand-written `index.html` (CSS inlined in a `<style>` block, loading the script via `<script type="module">`) next to a minified `game.js` in `dist/`, with no source maps or separate CSS file. `npm run dev` uses esbuild's built-in serve/watch to serve `dist/` locally. Game logic lives in a pure, unit-tested module (`node:test`). One end-to-end test drives the built page through the existing chrome-devtools MCP test utilities. The human player is always X, and the starting player alternates each round in every mode. No effects or audio libraries.
 
-## [ ] 1. Build pipeline and playable two-player board
+## [x] 1. Build pipeline and playable two-player board
 
 **Blocked by:** None
 
