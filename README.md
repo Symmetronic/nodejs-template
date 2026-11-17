@@ -12,11 +12,11 @@ See [CODING_STANDARDS.md](CODING_STANDARDS.md) for the principles and coding sta
 
 1. Claude (Opus) grills you about the idea and plans it as a tasks file (`TASKS.md`) of one-commit vertical slices, which you approve.
 2. A one-shot container, built from the same Dockerfile as the Dev Container, then works unattended on a new branch:
-   1. **Implement step:** Claude (Sonnet) implements the tasks, one commit each.
+   1. **Implement step:** Claude (Sonnet) implements each task in its own fresh session, one commit per task.
    2. **Review step:** Claude (Opus) reviews the changes against the tasks and [CODING_STANDARDS.md](CODING_STANDARDS.md) and commits improvements.
    3. The tasks file is removed and Claude (Opus) opens a pull request.
 
-Every commit is checked with `npm run verify` and the branch is pushed after every step, so on failure the remote branch keeps the work done so far. The container is removed either way. The log is in `.claude/skills/delegate/runs/<branch>/run.log`.
+Every commit is checked with `npm run verify` and the branch is pushed after every task and step, so on failure the remote branch keeps the work done so far. The container is removed either way. The log is in `.claude/skills/delegate/runs/<branch>/run.log`.
 
 ### Setup
 

@@ -126,18 +126,42 @@ commit_tasks_file() {
   push_branch
 }
 
-implement_tasks() {
-  step_base_commit="$(git rev-parse HEAD)"
-  run_claude_session "$SMALL_MODEL" "Implement the tasks in $TASKS_FILE_IN_REPOSITORY, one after another in their numbered order.
+unticked_task_numbers() {
+  sed -n 's/^## \[ \] \([0-9][0-9]*\)\..*/\1/p' "$TASKS_FILE_IN_REPOSITORY"
+}
 
-For each task:
+require_task_ticked() {
+  grep -Eq "^## \[x\] $1\." "$TASKS_FILE_IN_REPOSITORY" || fail "task $1 is not ticked in $TASKS_FILE_IN_REPOSITORY"
+}
+
+require_one_commit_since() {
+  [ "$(git rev-list --count "$2..HEAD")" -eq 1 ] || fail "task $1 did not produce exactly one commit"
+}
+
+implement_task() {
+  task_number="$1"
+  task_base_commit="$(git rev-parse HEAD)"
+  run_claude_session "$SMALL_MODEL" "Read the whole tasks file $TASKS_FILE_IN_REPOSITORY for context, but implement only task $task_number, which is the one task for this session.
+
 1. Make the change the task describes, meeting all its acceptance criteria.
 2. Run \`npm run verify\` and fix the code until it passes.
-3. Tick the task's heading checkbox in $TASKS_FILE_IN_REPOSITORY (\`## [ ]\` becomes \`## [x]\`).
+3. Tick task $task_number's heading checkbox in $TASKS_FILE_IN_REPOSITORY (\`## [ ] $task_number.\` becomes \`## [x] $task_number.\`).
 4. Commit everything as exactly one Conventional Commit with a capitalized summary.
 
 Never push. Never change other tasks in $TASKS_FILE_IN_REPOSITORY. Finish with a clean working tree."
-  finish_session_step "$step_base_commit"
+  require_clean_working_tree
+  require_one_commit_since "$task_number" "$task_base_commit"
+  require_task_ticked "$task_number"
+  verify_every_commit_since "$task_base_commit"
+  push_branch
+}
+
+implement_tasks() {
+  for task_number in $(unticked_task_numbers); do
+    current_step="implement step (task $task_number)"
+    echo "==> $current_step"
+    implement_task "$task_number"
+  done
   require_all_tasks_done
 }
 

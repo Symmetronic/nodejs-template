@@ -28,7 +28,7 @@ A review of the Claude skills found small inconsistencies in the vendored skills
 
 - No `agents/openai.yaml` file (or empty `agents` directory) remains under `.claude/skills`
 
-## [ ] 4. Run one implement session per task
+## [x] 4. Run one implement session per task
 
 **Blocked by:** None
 
