@@ -16,7 +16,7 @@ Design decisions:
 - **Test hook:** the game root element mirrors state as `data-screen` (`title`, `playing`, `gameover`, `clear`), `data-ammo` and `data-hearts`.
 - **Testing:** game logic (rail progress, encounters, zombie state, ammo, health, level progression) lives in rendering-free modules with `node:test` unit tests through their public interfaces. One browser smoke test drives the built page through the existing chrome-devtools MCP test helper. Because `npm run verify` runs tests before the build, the smoke test must build the page itself.
 
-## [ ] 1. Build pipeline and title screen
+## [x] 1. Build pipeline and title screen
 
 **Blocked by:** None
 
