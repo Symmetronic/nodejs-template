@@ -4,4 +4,7 @@ The **Summary** section's menu of visuals (pseudocode, call trees, component tre
 
 ## Source
 
-Vendored verbatim from [Matt Pocock](https://github.com/mattpocock)'s [`pr`](https://github.com/mattpocock/skills/tree/5863806dd4e15c63174bee4e7515a4256792ecfa/skills/engineering/pr) skill (commit `5863806dd4e15c63174bee4e7515a4256792ecfa`), licensed under MIT (see [LICENSE](LICENSE)).
+Vendored from [Matt Pocock](https://github.com/mattpocock)'s [`pr`](https://github.com/mattpocock/skills/tree/5863806dd4e15c63174bee4e7515a4256792ecfa/skills/engineering/pr) skill (commit `5863806dd4e15c63174bee4e7515a4256792ecfa`), licensed under MIT (see [LICENSE](LICENSE)), with two changes:
+
+- The sentence referring to `GLOSSARY.md` was dropped.
+- The frontmatter `metadata.credits` block was dropped, because that attribution lives in this file.

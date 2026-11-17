@@ -2,7 +2,7 @@
 
 A review of the Claude skills found small inconsistencies in the vendored skills and a reliability gap in the delegate skill. The `pr` skill references a nonexistent `GLOSSARY.md` and duplicates its attribution in frontmatter; `grilling` has a license but no credits; Codex-only `agents/openai.yaml` files are unused. The delegate implement step runs all tasks in one long Claude session, so context degrades on long task lists and failures surface only at the end; it should instead run one fresh session per task and check each task's result before moving on. Branch-name collisions should also surface before the user approves a tasks file, not after the container has built. No timeouts, resumability or extra logging are in scope.
 
-## [ ] 1. Make the pr skill a trimmed vendored copy
+## [x] 1. Make the pr skill a trimmed vendored copy
 
 **Blocked by:** None
 
