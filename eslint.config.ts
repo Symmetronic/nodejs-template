@@ -8,16 +8,13 @@ type Config = Parameters<typeof defineConfig>[number];
 
 const MAX_DEPTH = 3;
 
-const TEST_FILES = "tests/specs/**/*.spec.ts";
+const SOURCE_FILES = "src/**/*.ts";
+
+const TEST_FILES = "tests/**/*.ts";
 
 const RELATIVE_IMPORTS = {
   regex: String.raw`^\.\.?/`,
   message: 'Import with the "#/" alias, e.g. "#/src/module.ts".',
-};
-
-const TEST_FRAMEWORK_IMPORTS = {
-  name: "node:test",
-  message: `Put tests in ${TEST_FILES}, so that \`npm test\` runs them.`,
 };
 
 const recommendedConfigs: Config[] = [
@@ -81,17 +78,8 @@ const recommendedConfigs: Config[] = [
     },
   },
   {
-    name: "consistent-imports",
-    rules: {
-      "no-restricted-imports": [
-        "error",
-        { paths: [TEST_FRAMEWORK_IMPORTS], patterns: [RELATIVE_IMPORTS] },
-      ],
-    },
-  },
-  {
-    name: "test-location",
-    files: [TEST_FILES],
+    name: "absolute-imports",
+    files: [SOURCE_FILES, TEST_FILES],
     rules: {
       "no-restricted-imports": ["error", { patterns: [RELATIVE_IMPORTS] }],
     },
