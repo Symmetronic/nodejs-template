@@ -28,6 +28,22 @@ const LEVEL: Level = {
     },
   ],
 };
+const AMBUSH_X = -8;
+const AMBUSH_LEVEL: Level = {
+  ...LEVEL,
+  encounters: [
+    {
+      stopDistance: 10,
+      zombies: [{ position: { x: 0, y: 0, z: -18 }, delay: 0.5 }],
+    },
+    {
+      startDistance: 10,
+      stopDistance: 12,
+      zombies: [{ position: { x: AMBUSH_X, y: 0, z: -10 }, delay: 0.5 }],
+    },
+  ],
+};
+const AMBUSH_ZOMBIES = 2;
 const TICK = 0.1;
 const LEVEL_ZOMBIES = 2;
 const EARLY = 2;
@@ -247,5 +263,15 @@ describe("session", () => {
     assert.equal(session.status, "cleared");
     assert.ok(Math.abs(session.cameraPosition.z + RAIL_LENGTH) < EPSILON);
     assert.equal(session.shoot(aim(session, MISS_TARGET)), "none");
+  });
+
+  it("starts an encounter early while the camera holds at the one before", () => {
+    const session = createSession(AMBUSH_LEVEL);
+    waitForSpawn(session);
+    assert.equal(session.zombies.length, AMBUSH_ZOMBIES);
+    assert.ok(Math.abs(session.cameraPosition.z - STOP_Z) < EPSILON);
+    const ambusher = session.zombies[1];
+    assert.ok(ambusher);
+    assert.ok(ambusher.position.x > AMBUSH_X);
   });
 });

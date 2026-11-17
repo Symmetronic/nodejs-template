@@ -20,6 +20,7 @@ interface Spawn {
 }
 
 interface Encounter {
+  readonly startDistance?: number;
   readonly stopDistance: number;
   readonly zombies: readonly Spawn[];
 }

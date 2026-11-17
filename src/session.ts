@@ -33,6 +33,13 @@ export interface Session {
   readonly shoot: (ray: Ray) => ShotResult;
 }
 
+interface EncounterProgress {
+  readonly encounter: Level["encounters"][number];
+  seconds: number | undefined;
+  readonly zombies: Zombie[];
+  finished: boolean;
+}
+
 interface Target {
   readonly distance: number;
   readonly result: ShotResult;
@@ -51,31 +58,45 @@ export function createSession(level: Level): Session {
   let ammo = STARTING_AMMO;
   let hurtSeconds = 0;
   let distance = 0;
-  let encounterIndex = 0;
-  let encounterSeconds: number | undefined;
-  let encounterZombies: Zombie[] = [];
+  const encounters: EncounterProgress[] = level.encounters.map((encounter) => ({
+    encounter,
+    seconds: undefined,
+    zombies: [],
+    finished: false,
+  }));
 
-  function spawnDueZombies(): void {
-    const { zombies: spawns = [] } = level.encounters[encounterIndex] ?? {};
-    for (const spawn of spawns.slice(encounterZombies.length)) {
-      if (spawn.delay > (encounterSeconds ?? 0)) {
-        break;
-      }
-      const zombie = createZombie(spawn.position);
-      zombies.push(zombie);
-      encounterZombies.push(zombie);
-    }
+  function currentEncounter(): EncounterProgress | undefined {
+    return encounters.find((progress) => !progress.finished);
   }
 
   function moveAlongRail(deltaSeconds: number): void {
-    const encounter = level.encounters[encounterIndex];
-    const stop = encounter?.stopDistance ?? rail.length;
+    const stop = currentEncounter()?.encounter.stopDistance ?? rail.length;
     distance = Math.min(
       stop,
       rail.advance(distance, level.speed * deltaSeconds),
     );
-    if (encounter !== undefined && distance >= stop) {
-      encounterSeconds ??= 0;
+  }
+
+  function spawnDueZombies(progress: EncounterProgress): void {
+    const spawns = progress.encounter.zombies;
+    for (const spawn of spawns.slice(progress.zombies.length)) {
+      if (spawn.delay > (progress.seconds ?? 0)) {
+        break;
+      }
+      const zombie = createZombie(spawn.position);
+      zombies.push(zombie);
+      progress.zombies.push(zombie);
+    }
+  }
+
+  function runEncounterClocks(deltaSeconds: number): void {
+    for (const progress of encounters) {
+      const { startDistance, stopDistance } = progress.encounter;
+      if (progress.finished || distance < (startDistance ?? stopDistance)) {
+        continue;
+      }
+      progress.seconds = (progress.seconds ?? 0) + deltaSeconds;
+      spawnDueZombies(progress);
     }
   }
 
@@ -99,19 +120,13 @@ export function createSession(level: Level): Session {
     }
   }
 
-  function finishEncounter(): void {
-    const encounter = level.encounters[encounterIndex];
-    if (
-      encounter === undefined ||
-      encounterSeconds === undefined ||
-      encounterZombies.length < encounter.zombies.length ||
-      encounterZombies.some((zombie) => zombie.alive)
-    ) {
-      return;
+  function finishEncounters(): void {
+    for (const progress of encounters) {
+      progress.finished ||=
+        progress.seconds !== undefined &&
+        progress.zombies.length >= progress.encounter.zombies.length &&
+        progress.zombies.every((zombie) => !zombie.alive);
     }
-    encounterIndex += 1;
-    encounterSeconds = undefined;
-    encounterZombies = [];
   }
 
   function findTarget(ray: Ray): Target | undefined {
@@ -187,19 +202,13 @@ export function createSession(level: Level): Session {
       }
       hurtSeconds = Math.max(0, hurtSeconds - deltaSeconds);
       moveAlongRail(deltaSeconds);
-      if (encounterSeconds !== undefined) {
-        encounterSeconds += deltaSeconds;
-        spawnDueZombies();
-      }
+      runEncounterClocks(deltaSeconds);
       fightZombies(deltaSeconds);
       if (hearts === 0) {
         return;
       }
-      finishEncounter();
-      if (
-        encounterIndex >= level.encounters.length &&
-        rail.hasEnded(distance)
-      ) {
+      finishEncounters();
+      if (currentEncounter() === undefined && rail.hasEnded(distance)) {
         status = "cleared";
       }
     },
