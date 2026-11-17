@@ -82,7 +82,8 @@ describe("browser", () => {
           for (const index of [0, 3, 1, 4, 2]) cells[index].click();
           return {
             status: document.getElementById("status").textContent,
-            marks: cells.map((cell) => cell.textContent).join(""),
+            marks: cells.map((cell) => cell.querySelector(".mark-X") ? "X" : cell.querySelector(".mark-O") ? "O" : ".").join(""),
+            winLines: document.querySelectorAll(".win-overlay path").length,
             scores: document.getElementById("scoreboard").textContent.replace(/\\s+/g, " ").trim(),
             disabled: cells.every((cell) => cell.ariaDisabled === "true"),
           };
@@ -90,7 +91,8 @@ describe("browser", () => {
       });
       const text = textOf(result);
       assert.match(text, /X wins!/u);
-      assert.match(text, /XXXOO/u);
+      assert.match(text, /XXXOO\.\.\./u);
+      assert.match(text, /"winLines":1/u);
       assert.match(text, /"disabled":true/u);
       assert.match(text, /X wins: 1 O wins: 0 Draws: 0/u);
 

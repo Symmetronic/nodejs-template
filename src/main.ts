@@ -1,4 +1,5 @@
 import { type Difficulty } from "#/src/computer.ts";
+import { clearMark, createEffects, drawMark } from "#/src/effects.ts";
 import { isPlayable, type Game } from "#/src/game.ts";
 import {
   createSession,
@@ -52,6 +53,7 @@ const scoreElements = {
 };
 
 let session = createSession();
+let renderedGame: Game | undefined;
 let computerMoveTimer: ReturnType<typeof setTimeout> | undefined;
 
 function update(next: Session): void {
@@ -113,6 +115,8 @@ const cellElements = session.game.board.map((_, index) => {
   return cell;
 });
 
+const effects = createEffects(boardElement, cellElements);
+
 restartElement.addEventListener("click", () => {
   update(startNextRound(session));
 });
@@ -136,10 +140,46 @@ function describeStatus(game: Game): string {
   }
 }
 
+function renderMarks(game: Game): void {
+  for (const [index, cell] of cellElements.entries()) {
+    const mark = game.board[index];
+    if (mark === renderedGame?.board[index]) {
+      continue;
+    }
+    if (mark === undefined) {
+      clearMark(cell);
+    } else {
+      drawMark(cell, mark);
+    }
+  }
+}
+
+function renderEffects(game: Game): void {
+  if (game.outcome.status === "in-progress") {
+    effects.clear();
+  } else if (renderedGame?.outcome.status === "in-progress") {
+    if (game.outcome.status === "won") {
+      effects.showWin(game.outcome.line, game.outcome.winner);
+    } else {
+      effects.showDraw();
+    }
+  }
+}
+
 function render(): void {
   const { game, scores } = session;
+  renderMarks(game);
+  renderEffects(game);
+  renderedGame = game;
+  const humanCanMove =
+    game.outcome.status === "in-progress" && !isComputerTurn(session);
+  if (humanCanMove) {
+    boardElement.dataset["next"] = game.nextMark;
+  } else {
+    delete boardElement.dataset["next"];
+  }
   for (const [index, cell] of cellElements.entries()) {
-    cell.textContent = game.board[index] ?? "";
+    cell.dataset["preview"] = game.nextMark;
     cell.ariaLabel = describeCell(index);
     cell.ariaDisabled = String(!isPlayable(game, index));
   }

@@ -36,7 +36,7 @@ Build a browser tic-tac-toe game with neon visual effects and synthesized Web Au
 - The computer moves automatically after a short delay, and the human cannot place a mark during the computer's turn
 - Switching mode or difficulty starts a fresh round
 
-## [ ] 4. Visual effects
+## [x] 4. Visual effects
 
 **Blocked by:** 2
 
