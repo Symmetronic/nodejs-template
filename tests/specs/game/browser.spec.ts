@@ -110,80 +110,77 @@ async function clickByName(page: Tool, name: string): Promise<void> {
   await page("click", { uid });
 }
 
+async function readMuteState(page: Tool): Promise<string> {
+  return page("evaluate_script", {
+    function: `() => document.getElementById("mute").getAttribute("aria-pressed")`,
+  });
+}
+
+async function playToWinAndRestart(page: Tool): Promise<void> {
+  const text = await page("evaluate_script", {
+    function: `() => {
+      const cells = [...document.querySelectorAll("#board .cell")];
+      for (const index of [0, 3, 1, 4, 2]) cells[index].click();
+      return {
+        status: document.getElementById("status").textContent,
+        marks: cells.map((cell) => cell.querySelector(".mark-X") ? "X" : cell.querySelector(".mark-O") ? "O" : ".").join(""),
+        winLines: document.querySelectorAll(".win-overlay path").length,
+        scores: document.getElementById("scoreboard").textContent.replace(/\\s+/g, " ").trim(),
+        disabled: cells.every((cell) => cell.ariaDisabled === "true"),
+      };
+    }`,
+  });
+  assert.match(text, /X wins!/u);
+  assert.match(text, /XXXOO\.\.\./u);
+  assert.match(text, /"winLines":1/u);
+  assert.match(text, /"disabled":true/u);
+  assert.match(text, /X wins: 1 O wins: 0 Draws: 0/u);
+
+  const restarted = await page("evaluate_script", {
+    function: `() => {
+      document.getElementById("restart").click();
+      return {
+        status: document.getElementById("status").textContent,
+        winLines: document.querySelectorAll(".win-overlay path").length,
+      };
+    }`,
+  });
+  assert.match(restarted, /O to move/u);
+  assert.match(restarted, /"winLines":0/u);
+}
+
+async function toggleMuteAcrossReloads(page: Tool): Promise<void> {
+  await clickByName(page, "Mute");
+  await page("navigate_page", { type: "reload" });
+  assert.match(await readMuteState(page), /true/u);
+
+  await clickByName(page, "Unmute");
+  await clickByName(page, "Row 1, column 1, empty");
+  await page("navigate_page", { type: "reload" });
+  assert.match(await readMuteState(page), /false/u);
+}
+
+async function playWithThrowingStorage(page: Tool, url: string): Promise<void> {
+  await page("navigate_page", { url, initScript: THROWING_STORAGE });
+  await clickByName(page, "Mute");
+  await clickByName(page, "Row 1, column 1, empty");
+  const state = await page("evaluate_script", {
+    function: `() => document.getElementById("mute").getAttribute("aria-pressed") + document.getElementById("status").textContent`,
+  });
+  assert.match(state, /trueO to move/u);
+}
+
 describe("browser", () => {
-  it("the built page plays a game to a win without console errors", async () => {
+  it("the built page plays a game to a win, remembers the mute toggle and survives throwing storage without console problems", async () => {
     await withGamePage(async (page, url) => {
       await page("navigate_page", { url });
-      const text = await page("evaluate_script", {
-        function: `() => {
-          const cells = [...document.querySelectorAll("#board .cell")];
-          for (const index of [0, 3, 1, 4, 2]) cells[index].click();
-          return {
-            status: document.getElementById("status").textContent,
-            marks: cells.map((cell) => cell.querySelector(".mark-X") ? "X" : cell.querySelector(".mark-O") ? "O" : ".").join(""),
-            winLines: document.querySelectorAll(".win-overlay path").length,
-            scores: document.getElementById("scoreboard").textContent.replace(/\\s+/g, " ").trim(),
-            disabled: cells.every((cell) => cell.ariaDisabled === "true"),
-          };
-        }`,
-      });
-      assert.match(text, /X wins!/u);
-      assert.match(text, /XXXOO\.\.\./u);
-      assert.match(text, /"winLines":1/u);
-      assert.match(text, /"disabled":true/u);
-      assert.match(text, /X wins: 1 O wins: 0 Draws: 0/u);
-
-      const restarted = await page("evaluate_script", {
-        function: `() => {
-          document.getElementById("restart").click();
-          return {
-            status: document.getElementById("status").textContent,
-            winLines: document.querySelectorAll(".win-overlay path").length,
-          };
-        }`,
-      });
-      assert.match(restarted, /O to move/u);
-      assert.match(restarted, /"winLines":0/u);
+      await playToWinAndRestart(page);
       await assertNoConsoleProblems(page);
-    });
-  });
 
-  it("the built page plays sounds on real input and remembers the mute toggle across reloads", async () => {
-    await withGamePage(async (page, url) => {
-      await page("navigate_page", { url });
-      await clickByName(page, "Mute");
-      await page("navigate_page", { type: "reload" });
-      const state = await page("evaluate_script", {
-        function: `() => document.getElementById("mute").getAttribute("aria-pressed")`,
-      });
-      assert.match(state, /true/u);
-
-      await clickByName(page, "Unmute");
-      await page("click", {
-        uid: /uid=(\S+) button "Row 1, column 1, empty"/u.exec(
-          await page("take_snapshot", {}),
-        )?.[1],
-      });
-      await page("navigate_page", { type: "reload" });
-      const unmuted = await page("evaluate_script", {
-        function: `() => document.getElementById("mute").getAttribute("aria-pressed")`,
-      });
-      assert.match(unmuted, /false/u);
+      await toggleMuteAcrossReloads(page);
       await assertNoConsoleProblems(page);
-    });
-  });
 
-  it("the built page still works when storage access throws", async () => {
-    await withGamePage(async (page, url) => {
-      await page("navigate_page", { url, initScript: THROWING_STORAGE });
-      await clickByName(page, "Mute");
-      const state = await page("evaluate_script", {
-        function: `() => {
-          document.querySelector("#board .cell").click();
-          return document.getElementById("mute").getAttribute("aria-pressed") + document.getElementById("status").textContent;
-        }`,
-      });
-      assert.match(state, /trueO to move/u);
+      await playWithThrowingStorage(page, url);
       await assertNoConsoleProblems(page);
     });
   });
