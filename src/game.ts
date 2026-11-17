@@ -43,6 +43,7 @@ export function startGame(
   const audio = createAudio();
   let onTap: (event: PointerEvent) => void = () => undefined;
   root.addEventListener("pointerdown", (event) => {
+    audio.unlock();
     onTap(event);
   });
 
@@ -51,7 +52,6 @@ export function startGame(
     drawTitleScreen(display.frame);
     display.presentFrame();
     onTap = () => {
-      audio.unlock();
       play(LEVELS[0]);
     };
   }
