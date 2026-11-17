@@ -1,0 +1,149 @@
+import { FRAME_HEIGHT, FRAME_WIDTH } from "#/src/display.ts";
+import { type Level } from "#/src/level.ts";
+import { type Point } from "#/src/rail.ts";
+import { createTextures } from "#/src/textures.ts";
+import {
+  AmbientLight,
+  BoxGeometry,
+  Color,
+  Fog,
+  Mesh,
+  MeshLambertMaterial,
+  PerspectiveCamera,
+  PointLight,
+  Scene,
+} from "three";
+
+const FIELD_OF_VIEW = 75;
+const ASPECT = FRAME_WIDTH / FRAME_HEIGHT;
+const NEAR = 0.1;
+const FAR = 60;
+const FOG_COLOR = 0x08080c;
+const FOG_NEAR = 2;
+const FOG_FAR = 20;
+const AMBIENT_COLOR = 0x303040;
+const AMBIENT_INTENSITY = 1.2;
+const LIGHT_COLOR = 0xffc890;
+const TEXTURE_TILE = 2;
+const VERTICES_PER_FACE = 4;
+const HALF_TURN = Math.PI;
+const FULL_TURN = HALF_TURN + HALF_TURN;
+const TURN_RESPONSE = 3;
+const FLICKER_RATE_SLOW = 17.3;
+const FLICKER_RATE_FAST = 31;
+const FLICKER_THRESHOLD = 0.55;
+const FLICKER_DIMMED = 0.2;
+const FLICKER_LIGHT_OFFSET = 7;
+
+interface World {
+  readonly scene: Scene;
+  readonly camera: PerspectiveCamera;
+  readonly update: (
+    position: Point,
+    direction: Point,
+    deltaSeconds: number,
+    elapsedSeconds: number,
+  ) => void;
+}
+
+// Face order of BoxGeometry: +x, -x, +y, -y, +z, -z
+function faceTiles(size: Point): [number, number][] {
+  const depthByHeight: [number, number] = [size.z, size.y];
+  const widthByDepth: [number, number] = [size.x, size.z];
+  const widthByHeight: [number, number] = [size.x, size.y];
+  return [
+    depthByHeight,
+    depthByHeight,
+    widthByDepth,
+    widthByDepth,
+    widthByHeight,
+    widthByHeight,
+  ];
+}
+
+function createTiledBox(size: Point): BoxGeometry {
+  const geometry = new BoxGeometry(size.x, size.y, size.z);
+  const uv = geometry.getAttribute("uv");
+  faceTiles(size).forEach(([width, height], face) => {
+    for (let vertex = 0; vertex < VERTICES_PER_FACE; vertex += 1) {
+      const index = face * VERTICES_PER_FACE + vertex;
+      uv.setXY(
+        index,
+        (uv.getX(index) * width) / TEXTURE_TILE,
+        (uv.getY(index) * height) / TEXTURE_TILE,
+      );
+    }
+  });
+  return geometry;
+}
+
+function shortestTurn(from: number, to: number): number {
+  const difference = (to - from) % FULL_TURN;
+  if (difference > HALF_TURN) {
+    return difference - FULL_TURN;
+  }
+  if (difference < -HALF_TURN) {
+    return difference + FULL_TURN;
+  }
+  return difference;
+}
+
+function flickerFactor(seconds: number): number {
+  const wave =
+    Math.sin(seconds * FLICKER_RATE_SLOW) *
+    Math.sin(seconds * FLICKER_RATE_FAST);
+  return wave > FLICKER_THRESHOLD ? FLICKER_DIMMED : 1;
+}
+
+export function createWorld(level: Level): World {
+  const scene = new Scene();
+  scene.background = new Color(FOG_COLOR);
+  scene.fog = new Fog(FOG_COLOR, FOG_NEAR, FOG_FAR);
+  scene.add(new AmbientLight(AMBIENT_COLOR, AMBIENT_INTENSITY));
+
+  const textures = createTextures();
+  const materials = {
+    brick: new MeshLambertMaterial({ map: textures.brick }),
+    concrete: new MeshLambertMaterial({ map: textures.concrete }),
+    floor: new MeshLambertMaterial({ map: textures.floor }),
+  };
+  for (const box of level.boxes) {
+    const mesh = new Mesh(createTiledBox(box.size), materials[box.texture]);
+    mesh.position.set(box.center.x, box.center.y, box.center.z);
+    scene.add(mesh);
+  }
+
+  const lights = level.lights.map((definition, index) => {
+    const light = new PointLight(LIGHT_COLOR, definition.intensity);
+    light.position.set(
+      definition.position.x,
+      definition.position.y,
+      definition.position.z,
+    );
+    scene.add(light);
+    return { light, definition, offset: index * FLICKER_LIGHT_OFFSET };
+  });
+
+  const camera = new PerspectiveCamera(FIELD_OF_VIEW, ASPECT, NEAR, FAR);
+  let yaw: number | undefined;
+
+  return {
+    scene,
+    camera,
+    update: (position, direction, deltaSeconds, elapsedSeconds) => {
+      const targetYaw = Math.atan2(-direction.x, -direction.z);
+      const currentYaw = yaw ?? targetYaw;
+      yaw =
+        currentYaw +
+        shortestTurn(currentYaw, targetYaw) *
+          (1 - Math.exp(-TURN_RESPONSE * deltaSeconds));
+      camera.position.set(position.x, position.y, position.z);
+      camera.rotation.set(0, yaw, 0);
+      for (const { light, definition, offset } of lights) {
+        light.intensity = definition.flickers
+          ? definition.intensity * flickerFactor(elapsedSeconds + offset)
+          : definition.intensity;
+      }
+    },
+  };
+}

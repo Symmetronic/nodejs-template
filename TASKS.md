@@ -28,7 +28,7 @@ Design decisions:
 - The game root element has `data-screen="title"`.
 - A browser smoke test builds the page, loads it, asserts `data-screen="title"` and that there are no console errors.
 
-## [ ] 2. Retro corridor and rail movement
+## [x] 2. Retro corridor and rail movement
 
 **Blocked by:** 1
 

@@ -47,7 +47,7 @@ function selectedPageId(pages: string): number {
 }
 
 describe("game page", () => {
-  it("loads from a subpath, shows the title screen and logs no console errors", async () => {
+  it("loads from a subpath, shows the title screen, starts playing and logs no console errors", async () => {
     const outputDirectory = await mkdtemp(join(tmpdir(), "game-"));
     const build = spawnSync(
       "node",
@@ -93,6 +93,16 @@ describe("game page", () => {
         function: "() => document.querySelector('#game')?.dataset.screen",
       });
       assert.match(textOf(screen), /"title"/u);
+      await client.callTool("evaluate_script", {
+        pageId,
+        function:
+          "() => document.querySelector('#game')?.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))",
+      });
+      const playing = await client.callTool("evaluate_script", {
+        pageId,
+        function: "() => document.querySelector('#game')?.dataset.screen",
+      });
+      assert.match(textOf(playing), /"playing"/u);
       const messages = await client.callTool("list_console_messages", {
         pageId,
       });

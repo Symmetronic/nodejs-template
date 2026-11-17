@@ -1,5 +1,6 @@
 import { type Frame } from "#/src/pixel-font.ts";
 import {
+  type Camera,
   CanvasTexture,
   Mesh,
   MeshBasicMaterial,
@@ -14,12 +15,13 @@ import {
 
 const HALF = 0.5;
 
-const FRAME_WIDTH = 160;
-const FRAME_HEIGHT = 284;
+export const FRAME_WIDTH = 160;
+export const FRAME_HEIGHT = 284;
 
 interface Display {
   readonly frame: Frame;
-  readonly present: () => void;
+  readonly presentFrame: () => void;
+  readonly presentWorld: (scene: Scene, camera: Camera) => void;
 }
 
 function createFullScreenScene(texture: Texture): Scene {
@@ -75,13 +77,21 @@ export function createDisplay(root: HTMLElement): Display {
   new ResizeObserver(fitToRoot).observe(root);
   fitToRoot();
 
+  function renderIntoTarget(scene: Scene, sceneCamera: Camera): void {
+    renderer.setRenderTarget(lowResolutionTarget);
+    renderer.render(scene, sceneCamera);
+    renderer.setRenderTarget(null);
+  }
+
   return {
     frame,
-    present: () => {
+    presentFrame: () => {
       frameTexture.needsUpdate = true;
-      renderer.setRenderTarget(lowResolutionTarget);
-      renderer.render(frameScene, camera);
-      renderer.setRenderTarget(null);
+      renderIntoTarget(frameScene, camera);
+      renderer.render(screenScene, camera);
+    },
+    presentWorld: (scene, worldCamera) => {
+      renderIntoTarget(scene, worldCamera);
       renderer.render(screenScene, camera);
     },
   };
