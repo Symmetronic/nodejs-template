@@ -25,7 +25,7 @@ Build a browser tic-tac-toe game with neon visual effects and synthesized Web Au
 - Restart clears the board, keeps the scores, and hands the first move to the other player
 - Arrow keys move focus between cells, Enter/Space places a mark, and cells have accessible labels
 
-## [ ] 3. Computer opponent with difficulty
+## [x] 3. Computer opponent with difficulty
 
 **Blocked by:** 2
 

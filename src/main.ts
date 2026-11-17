@@ -1,11 +1,20 @@
+import { type Difficulty } from "#/src/computer.ts";
 import { isPlayable, type Game } from "#/src/game.ts";
 import {
   createSession,
+  isComputerTurn,
+  playComputerMove,
   playSessionMove,
+  selectDifficulty,
+  selectMode,
   startNextRound,
+  type Mode,
+  type Session,
 } from "#/src/session.ts";
 
 const BOARD_SIZE = 3;
+
+const COMPUTER_MOVE_DELAY_IN_MILLISECONDS = 500;
 
 function requireElement(id: string): HTMLElement {
   const element = document.getElementById(id);
@@ -15,9 +24,27 @@ function requireElement(id: string): HTMLElement {
   return element;
 }
 
+function requireSelect(id: string): HTMLSelectElement {
+  const element = requireElement(id);
+  if (!(element instanceof HTMLSelectElement)) {
+    throw new Error(`Element #${id} must be a select`);
+  }
+  return element;
+}
+
+function parseMode(value: string): Mode {
+  return value === "computer" ? "computer" : "two-player";
+}
+
+function parseDifficulty(value: string): Difficulty {
+  return value === "hard" ? "hard" : "easy";
+}
+
 const boardElement = requireElement("board");
 const statusElement = requireElement("status");
 const restartElement = requireElement("restart");
+const modeElement = requireSelect("mode");
+const difficultyElement = requireSelect("difficulty");
 const scoreElements = {
   X: requireElement("score-x"),
   O: requireElement("score-o"),
@@ -25,6 +52,18 @@ const scoreElements = {
 };
 
 let session = createSession();
+let computerMoveTimer: ReturnType<typeof setTimeout> | undefined;
+
+function update(next: Session): void {
+  clearTimeout(computerMoveTimer);
+  session = next;
+  render();
+  if (isComputerTurn(session)) {
+    computerMoveTimer = setTimeout(() => {
+      update(playComputerMove(session));
+    }, COMPUTER_MOVE_DELAY_IN_MILLISECONDS);
+  }
+}
 
 function describeCell(index: number): string {
   const row = Math.floor(index / BOARD_SIZE) + 1;
@@ -62,8 +101,7 @@ const cellElements = session.game.board.map((_, index) => {
   cell.className = "cell";
   cell.dataset["index"] = String(index);
   cell.addEventListener("click", () => {
-    session = playSessionMove(session, index);
-    render();
+    update(playSessionMove(session, index));
   });
   cell.addEventListener("keydown", (event) => {
     if (event.key.startsWith("Arrow")) {
@@ -76,8 +114,15 @@ const cellElements = session.game.board.map((_, index) => {
 });
 
 restartElement.addEventListener("click", () => {
-  session = startNextRound(session);
-  render();
+  update(startNextRound(session));
+});
+
+modeElement.addEventListener("change", () => {
+  update(selectMode(session, parseMode(modeElement.value)));
+});
+
+difficultyElement.addEventListener("change", () => {
+  update(selectDifficulty(session, parseDifficulty(difficultyElement.value)));
 });
 
 function describeStatus(game: Game): string {
@@ -99,6 +144,9 @@ function render(): void {
     cell.ariaDisabled = String(!isPlayable(game, index));
   }
   statusElement.textContent = describeStatus(game);
+  modeElement.value = session.mode;
+  difficultyElement.value = session.difficulty;
+  difficultyElement.disabled = session.mode !== "computer";
   scoreElements.X.textContent = String(scores.X);
   scoreElements.O.textContent = String(scores.O);
   scoreElements.draws.textContent = String(scores.draws);

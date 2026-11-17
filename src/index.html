@@ -57,6 +57,18 @@
         outline: 3px solid #7df9ff;
         outline-offset: 2px;
       }
+      #settings {
+        display: flex;
+        gap: 1.5rem;
+      }
+      select {
+        padding: 0.25rem 0.5rem;
+        border: 2px solid #2b2b4d;
+        border-radius: 0.5rem;
+        background: #12122a;
+        color: inherit;
+        font: inherit;
+      }
       #scoreboard {
         display: flex;
         gap: 1.5rem;
@@ -78,6 +90,22 @@
   <body>
     <main>
       <h1>Tic-tac-toe</h1>
+      <div id="settings">
+        <label>
+          Opponent
+          <select id="mode">
+            <option value="two-player">Two players</option>
+            <option value="computer">Computer</option>
+          </select>
+        </label>
+        <label>
+          Difficulty
+          <select id="difficulty">
+            <option value="easy">Easy</option>
+            <option value="hard">Hard</option>
+          </select>
+        </label>
+      </div>
       <p id="status" role="status"></p>
       <div id="board" role="group" aria-label="Board"></div>
       <ul id="scoreboard" aria-label="Scoreboard">

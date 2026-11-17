@@ -1,7 +1,11 @@
 import { type Game } from "#/src/game.ts";
 import {
   createSession,
+  isComputerTurn,
+  playComputerMove,
   playSessionMove,
+  selectDifficulty,
+  selectMode,
   startNextRound,
   type Session,
 } from "#/src/session.ts";
@@ -59,5 +63,64 @@ describe("session", () => {
     const session = play(startNextRound(createSession()), "03142");
     assert.equal(winnerOf(session.game), "O");
     assert.deepEqual(session.scores, { X: 0, O: 1, draws: 0 });
+  });
+
+  describe("against the computer", () => {
+    const CENTER = 4;
+    const TOP_RIGHT = 2;
+
+    function versusComputer(): Session {
+      return selectMode(createSession(), "computer");
+    }
+
+    it("lets the human start the first round as X", () => {
+      assert.equal(isComputerTurn(versusComputer()), false);
+      assert.equal(
+        playSessionMove(versusComputer(), CENTER).game.board[CENTER],
+        "X",
+      );
+    });
+
+    it("ignores human moves during the computer's turn", () => {
+      const afterHuman = playSessionMove(versusComputer(), CENTER);
+      assert.equal(isComputerTurn(afterHuman), true);
+      assert.equal(playSessionMove(afterHuman, 0), afterHuman);
+    });
+
+    it("lets the computer play O and then hands the turn back", () => {
+      const afterHuman = playSessionMove(versusComputer(), CENTER);
+      const afterComputer = playComputerMove(afterHuman);
+      assert.equal(
+        afterComputer.game.board.filter((cell) => cell === "O").length,
+        1,
+      );
+      assert.equal(isComputerTurn(afterComputer), false);
+      assert.equal(playComputerMove(afterComputer), afterComputer);
+    });
+
+    it("plays hard moves when the difficulty is hard", () => {
+      const hard = selectDifficulty(versusComputer(), "hard");
+      const afterReply = playComputerMove(playSessionMove(hard, 0));
+      assert.equal(afterReply.game.board[CENTER], "O");
+      const afterBlock = playComputerMove(playSessionMove(afterReply, 1));
+      assert.equal(afterBlock.game.board[TOP_RIGHT], "O");
+    });
+
+    it("lets the computer start the second round", () => {
+      const second = startNextRound(versusComputer());
+      assert.equal(isComputerTurn(second), true);
+      assert.equal(isComputerTurn(startNextRound(second)), false);
+    });
+
+    it("starts a fresh first round when the mode or difficulty changes", () => {
+      const midRound = playSessionMove(startNextRound(createSession()), CENTER);
+      for (const session of [
+        selectMode(midRound, "computer"),
+        selectDifficulty(midRound, "hard"),
+      ]) {
+        assert.deepEqual(session.game, createSession().game);
+        assert.equal(session.round, createSession().round);
+      }
+    });
   });
 });
