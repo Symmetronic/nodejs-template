@@ -5,3 +5,27 @@
 A simple template for Node.js applications.
 
 See [CODING_STANDARDS.md](CODING_STANDARDS.md) for the principles and coding standards that apply to this repository.
+
+## Delegate runs
+
+`/delegate <idea>` in Claude Code turns an idea into a pull request:
+
+1. Claude (Opus) grills you about the idea and plans it as a tasks file (`TASKS.md`) of one-commit vertical slices, which you approve.
+2. A one-shot container, built from the same Dockerfile as the Dev Container, then works unattended on a new branch:
+   1. **Implement step:** Claude (Sonnet) implements the tasks, one commit each.
+   2. **Review step:** Claude (Opus) reviews the changes against the tasks and [CODING_STANDARDS.md](CODING_STANDARDS.md) and commits improvements.
+   3. The tasks file is removed and Claude (Opus) opens a pull request.
+
+Every commit is checked with `npm run verify` and the branch is pushed after every step, so on failure the remote branch keeps the work done so far. The container is removed either way. The log is in `.claude/skills/delegate/runs/<branch>/run.log`.
+
+### Setup
+
+1. Rebuild the Dev Container once, so it has Docker-in-Docker and the GitHub CLI.
+2. Create a Claude token with `claude setup-token`.
+3. Create a [fine-grained GitHub personal access token](https://github.com/settings/personal-access-tokens/new) for this repository only, with read and write access to **Contents** and **Pull requests**.
+4. Copy `.env.example` to `.env` in the repository root and fill in both tokens. Use plain `KEY=value` lines without quotes.
+5. Make sure `git config user.name` and `git config user.email` are set: delegate runs commit as you.
+
+### Secrets
+
+The GitHub token is only used by the container's script to clone, push and create the pull request; Claude sessions never receive it. The Claude token is hidden from the commands, hooks and MCP servers Claude runs (`CLAUDE_CODE_SUBPROCESS_ENV_SCRUB`). The `claude` process itself must hold it, though, so a command run by Claude in the container could still read it from `/proc/<pid>/environ`. Revoke it if you suspect a leak.
