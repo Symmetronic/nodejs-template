@@ -77,7 +77,7 @@ clone_repository() {
 }
 
 install_dependencies() {
-  bash .devcontainer/scripts/post-create.sh
+  sh .devcontainer/scripts/post-create.sh
 }
 
 push_branch() {
