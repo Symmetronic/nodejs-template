@@ -26,3 +26,9 @@ updates:
       interval: "daily"
     cooldown:
       default-days: 7
+  - package-ecosystem: "devcontainers"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    cooldown:
+      default-days: 7
