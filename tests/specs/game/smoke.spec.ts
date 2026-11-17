@@ -1,3 +1,4 @@
+import mcp from "#/.mcp.json" with { type: "json" };
 import { assertIsObject } from "#/tests/utils/assert.ts";
 import { connectMcpServer } from "#/tests/utils/mcp.ts";
 import assert from "node:assert/strict";
@@ -11,19 +12,6 @@ import { describe, it } from "node:test";
 const OK = 200;
 const NOT_FOUND = 404;
 const SUBPATH = "/games/zombies/";
-const MCP_SERVER = {
-  command: "npx",
-  args: [
-    "--no-install",
-    "chrome-devtools-mcp",
-    "--headless",
-    "--isolated",
-    "--executablePath=/usr/bin/chromium",
-    "--chrome-arg=--no-sandbox",
-    "--no-usage-statistics",
-    "--no-performance-crux",
-  ],
-};
 const CONTENT_TYPES: Readonly<Record<string, string>> = {
   ".html": "text/html",
   ".js": "text/javascript",
@@ -96,7 +84,9 @@ describe("game page", () => {
     const { port } = address;
 
     try {
-      await using client = await connectMcpServer(MCP_SERVER);
+      await using client = await connectMcpServer(
+        mcp.mcpServers["chrome-devtools"],
+      );
       const opened = await client.callTool("new_page", {
         url: `http://127.0.0.1:${String(port)}${SUBPATH}`,
       });
