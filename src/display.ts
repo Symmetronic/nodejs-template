@@ -8,9 +8,10 @@ import {
   OrthographicCamera,
   PlaneGeometry,
   Scene,
+  SRGBColorSpace,
   type Texture,
-  WebGLRenderTarget,
   WebGLRenderer,
+  WebGLRenderTarget,
 } from "three";
 
 const HALF = 0.5;
@@ -61,6 +62,7 @@ export function createDisplay(root: HTMLElement): Display {
   const frameTexture = new CanvasTexture(frameCanvas);
   frameTexture.minFilter = NearestFilter;
   frameTexture.magFilter = NearestFilter;
+  frameTexture.colorSpace = SRGBColorSpace;
 
   const lowResolutionTarget = new WebGLRenderTarget(FRAME_WIDTH, FRAME_HEIGHT, {
     minFilter: NearestFilter,
