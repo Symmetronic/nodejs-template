@@ -100,14 +100,32 @@ const paintFloor: Paint = (fillRect, random) => {
   scatter(fillRect, random, STAIN_COLOR, STAINS);
 };
 
-const PAINTERS: Readonly<Record<TextureName, { paint: Paint; seed: number }>> =
-  {
-    brick: { paint: paintBrick, seed: 11 },
-    concrete: { paint: paintConcrete, seed: 23 },
-    floor: { paint: paintFloor, seed: 37 },
-  };
+const CRATE_WOOD = "#5b4a2e";
+const CRATE_PLANK = "#6d5a37";
+const CRATE_BAND = "#2f5d34";
+const CRATE_BAND_TOP = 12;
+const CRATE_BAND_HEIGHT = 8;
+const CRATE_PLANKS = 4;
 
-function createTexture(name: TextureName): Texture {
+const paintCrate: Paint = (fillRect, random) => {
+  fillRect(CRATE_WOOD, 0, 0, SIZE, SIZE);
+  for (let plank = 0; plank < CRATE_PLANKS; plank += 1) {
+    fillRect(CRATE_PLANK, 0, plank * BRICK_HEIGHT, SIZE, MORTAR);
+  }
+  fillRect(CRATE_BAND, 0, CRATE_BAND_TOP, SIZE, CRATE_BAND_HEIGHT);
+  scatter(fillRect, random, BRICK_MORTAR, SPECKLES);
+};
+
+const PAINTERS: Readonly<
+  Record<TextureName | "crate", { paint: Paint; seed: number }>
+> = {
+  brick: { paint: paintBrick, seed: 11 },
+  concrete: { paint: paintConcrete, seed: 23 },
+  floor: { paint: paintFloor, seed: 37 },
+  crate: { paint: paintCrate, seed: 41 },
+};
+
+function createTexture(name: TextureName | "crate"): Texture {
   const canvas = document.createElement("canvas");
   canvas.width = SIZE;
   canvas.height = SIZE;
@@ -135,4 +153,8 @@ export function createTextures(): Readonly<Record<TextureName, Texture>> {
     concrete: createTexture("concrete"),
     floor: createTexture("floor"),
   };
+}
+
+export function createCrateTexture(): Texture {
+  return createTexture("crate");
 }

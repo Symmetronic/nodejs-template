@@ -1,9 +1,11 @@
 import { FRAME_HEIGHT, FRAME_WIDTH } from "#/src/display.ts";
 import { type Level } from "#/src/level.ts";
 import { type Point } from "#/src/rail.ts";
-import { createTextures } from "#/src/textures.ts";
+import { type Crate } from "#/src/session.ts";
+import { type Ray } from "#/src/shooting.ts";
+import { createCrateTexture, createTextures } from "#/src/textures.ts";
 import { createZombieFrames, ZOMBIE_ASPECT } from "#/src/zombie-sprites.ts";
-import { type Zombie } from "#/src/zombie.ts";
+import { ZOMBIE_HEIGHT, type Zombie } from "#/src/zombie.ts";
 import {
   AmbientLight,
   BoxGeometry,
@@ -13,9 +15,12 @@ import {
   MeshLambertMaterial,
   PerspectiveCamera,
   PointLight,
+  Raycaster,
   Scene,
   Sprite,
   SpriteMaterial,
+  Vector2,
+  type Texture,
 } from "three";
 
 const FIELD_OF_VIEW = 75;
@@ -38,8 +43,9 @@ const FLICKER_RATE_FAST = 31;
 const FLICKER_THRESHOLD = 0.55;
 const FLICKER_DIMMED = 0.2;
 const FLICKER_LIGHT_OFFSET = 7;
-const ZOMBIE_HEIGHT = 1.75;
+const CRATE_SIZE = 0.6;
 const HALF = 0.5;
+const NDC_RANGE = 2;
 
 interface World {
   readonly scene: Scene;
@@ -50,7 +56,9 @@ interface World {
     deltaSeconds: number,
     elapsedSeconds: number,
     zombies: readonly Zombie[],
+    crates: readonly Crate[],
   ) => void;
+  readonly rayThrough: (frameX: number, frameY: number) => Ray;
 }
 
 // Face order of BoxGeometry: +x, -x, +y, -y, +z, -z
@@ -131,15 +139,29 @@ export function createWorld(level: Level): World {
     return { light, definition, offset: index * FLICKER_LIGHT_OFFSET };
   });
 
-  const zombieMaterials = createZombieFrames().map(
-    (map) => new SpriteMaterial({ map }),
-  );
+  const zombieFrames = createZombieFrames();
+  function frameOf(zombie: Zombie): Texture {
+    if (zombie.state === "dying") {
+      return zombieFrames.fallen;
+    }
+    if (zombie.state === "flinching") {
+      return zombieFrames.flinch;
+    }
+    return zombieFrames.walk[zombie.frame];
+  }
   const sprites = new Map<Zombie, Sprite>();
   function syncZombies(zombies: readonly Zombie[]): void {
+    for (const [zombie, sprite] of sprites) {
+      if (!zombies.includes(zombie)) {
+        scene.remove(sprite);
+        sprite.material.dispose();
+        sprites.delete(zombie);
+      }
+    }
     for (const zombie of zombies) {
       let sprite = sprites.get(zombie);
       if (sprite === undefined) {
-        sprite = new Sprite();
+        sprite = new Sprite(new SpriteMaterial({ transparent: true }));
         sprite.scale.set(ZOMBIE_HEIGHT * ZOMBIE_ASPECT, ZOMBIE_HEIGHT, 1);
         sprites.set(zombie, sprite);
         scene.add(sprite);
@@ -150,18 +172,57 @@ export function createWorld(level: Level): World {
         position.y + ZOMBIE_HEIGHT * HALF,
         position.z,
       );
-      sprite.material = zombieMaterials[zombie.frame] ?? sprite.material;
+      sprite.material.map = frameOf(zombie);
+      sprite.material.opacity = zombie.opacity;
     }
   }
 
+  const crateMaterial = new MeshLambertMaterial({ map: createCrateTexture() });
+  const crateGeometry = new BoxGeometry(CRATE_SIZE, CRATE_SIZE, CRATE_SIZE);
+  const crateMeshes = level.crates.map((position) => {
+    const mesh = new Mesh(crateGeometry, crateMaterial);
+    mesh.position.set(position.x, position.y + CRATE_SIZE * HALF, position.z);
+    scene.add(mesh);
+    return mesh;
+  });
+
   const camera = new PerspectiveCamera(FIELD_OF_VIEW, ASPECT, NEAR, FAR);
   let yaw: number | undefined;
+  const raycaster = new Raycaster();
 
   return {
     scene,
     camera,
-    update: (position, direction, deltaSeconds, elapsedSeconds, zombies) => {
+    rayThrough: (frameX, frameY) => {
+      camera.updateMatrixWorld();
+      raycaster.setFromCamera(
+        new Vector2(
+          (frameX / FRAME_WIDTH) * NDC_RANGE - 1,
+          1 - (frameY / FRAME_HEIGHT) * NDC_RANGE,
+        ),
+        camera,
+      );
+      const { origin, direction } = raycaster.ray;
+      return {
+        origin: { x: origin.x, y: origin.y, z: origin.z },
+        direction: { x: direction.x, y: direction.y, z: direction.z },
+      };
+    },
+    update: (
+      position,
+      direction,
+      deltaSeconds,
+      elapsedSeconds,
+      zombies,
+      crates,
+    ) => {
       syncZombies(zombies);
+      crates.forEach((crate, index) => {
+        const mesh = crateMeshes[index];
+        if (mesh !== undefined) {
+          mesh.visible = !crate.collected;
+        }
+      });
       const targetYaw = Math.atan2(-direction.x, -direction.z);
       const currentYaw = yaw ?? targetYaw;
       yaw =

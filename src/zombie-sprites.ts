@@ -57,9 +57,53 @@ function legs(leftTop: number, rightTop: number): Rect[] {
   ];
 }
 
-const FRAMES: readonly [readonly Rect[], readonly Rect[]] = [
+function shifted(rects: readonly Rect[], dx: number, dy: number): Rect[] {
+  return rects.map((rect) => ({ ...rect, x: rect.x + dx, y: rect.y + dy }));
+}
+
+const FLINCH_SHIFT = 1;
+const FLINCH_DROP = 1;
+const FLINCH_ARMS = 3;
+const FALLEN_TOP = 22;
+const FALLEN_LENGTH = 15;
+const FALLEN_LEGS_LEFT = 10;
+const FALLEN_THICKNESS = 4;
+
+const WALK_FRAMES: readonly [readonly Rect[], readonly Rect[]] = [
   [...BODY, ...arms(LOWERED_ARM_TOP), ...legs(HIGH_LEG_TOP, LOW_LEG_TOP)],
   [...BODY, ...arms(RAISED_ARM_TOP), ...legs(LOW_LEG_TOP, HIGH_LEG_TOP)],
+];
+
+const FLINCH_FRAME: readonly Rect[] = [
+  ...shifted([...BODY, ...arms(FLINCH_ARMS)], FLINCH_SHIFT, FLINCH_DROP),
+  ...legs(LOW_LEG_TOP, LOW_LEG_TOP),
+];
+
+const FALLEN_FRAME: readonly Rect[] = [
+  { color: SKIN, x: 0, y: FALLEN_TOP, width: 4, height: FALLEN_THICKNESS },
+  { color: EYES, x: 1, y: FALLEN_TOP + 1, width: 1, height: 1 },
+  {
+    color: SHIRT,
+    x: 4,
+    y: FALLEN_TOP,
+    width: 6,
+    height: FALLEN_THICKNESS + 1,
+  },
+  { color: BLOOD, x: 5, y: FALLEN_TOP + 1, width: 2, height: 2 },
+  {
+    color: TROUSERS,
+    x: FALLEN_LEGS_LEFT,
+    y: FALLEN_TOP,
+    width: WIDTH - FALLEN_LEGS_LEFT,
+    height: FALLEN_THICKNESS,
+  },
+  {
+    color: SKIN_SHADOW,
+    x: 0,
+    y: FALLEN_TOP + FALLEN_THICKNESS,
+    width: FALLEN_LENGTH,
+    height: 1,
+  },
 ];
 
 function createFrameTexture(rects: readonly Rect[]): CanvasTexture {
@@ -83,7 +127,17 @@ function createFrameTexture(rects: readonly Rect[]): CanvasTexture {
 
 export const ZOMBIE_ASPECT = WIDTH / HEIGHT;
 
-export function createZombieFrames(): readonly [CanvasTexture, CanvasTexture] {
-  const [first, second] = FRAMES;
-  return [createFrameTexture(first), createFrameTexture(second)];
+interface ZombieFrames {
+  readonly walk: readonly [CanvasTexture, CanvasTexture];
+  readonly flinch: CanvasTexture;
+  readonly fallen: CanvasTexture;
+}
+
+export function createZombieFrames(): ZombieFrames {
+  const [first, second] = WALK_FRAMES;
+  return {
+    walk: [createFrameTexture(first), createFrameTexture(second)],
+    flinch: createFrameTexture(FLINCH_FRAME),
+    fallen: createFrameTexture(FALLEN_FRAME),
+  };
 }

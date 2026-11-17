@@ -29,5 +29,6 @@ export interface Level {
   readonly rail: readonly Point[];
   readonly boxes: readonly Box[];
   readonly lights: readonly Light[];
+  readonly crates: readonly Point[];
   readonly encounters: readonly Encounter[];
 }

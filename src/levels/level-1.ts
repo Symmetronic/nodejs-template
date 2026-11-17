@@ -1,6 +1,6 @@
 import { type Level } from "#/src/level.ts";
 
-const SPEED = 3;
+const SPEED = 2.5;
 const EYE_HEIGHT = 1.5;
 const LIGHT_HEIGHT = 2.7;
 const LIGHT_INTENSITY = 22;
@@ -10,6 +10,7 @@ const WALL_CENTER = 1.5;
 const FLOOR_CENTER = -0.1;
 const CEILING_CENTER = 3.1;
 const FEET = 0;
+const CRATE_FLOOR = 0;
 
 /*
  * Corridor layout (top view, x to the right, z down):
@@ -118,35 +119,43 @@ export const level1: Level = {
       flickers: false,
     },
   ],
+  crates: [
+    { x: 1.2, y: CRATE_FLOOR, z: -10 },
+    { x: -1.2, y: CRATE_FLOOR, z: -30 },
+    { x: 10, y: CRATE_FLOOR, z: -38.8 },
+    { x: 22, y: CRATE_FLOOR, z: -41.2 },
+    { x: 31, y: CRATE_FLOOR, z: -52 },
+    { x: 29, y: CRATE_FLOOR, z: -60 },
+  ],
   encounters: [
     {
       stopDistance: 18,
       zombies: [
         { position: { x: -0.8, y: FEET, z: -30 }, delay: 0.5 },
-        { position: { x: 0.8, y: FEET, z: -33 }, delay: 2 },
-        { position: { x: 0, y: FEET, z: -36 }, delay: 4 },
+        { position: { x: 0.8, y: FEET, z: -33 }, delay: 3 },
+        { position: { x: 0, y: FEET, z: -36 }, delay: 6 },
       ],
     },
     {
       stopDistance: 55,
       zombies: [
         { position: { x: 27, y: FEET, z: -39.2 }, delay: 0.5 },
-        { position: { x: 28, y: FEET, z: -40.8 }, delay: 1.5 },
-        { position: { x: 29, y: FEET, z: -40 }, delay: 3 },
-        { position: { x: 30, y: FEET, z: -39.3 }, delay: 4.5 },
-        { position: { x: 31, y: FEET, z: -40.7 }, delay: 6 },
+        { position: { x: 28, y: FEET, z: -40.8 }, delay: 2 },
+        { position: { x: 29, y: FEET, z: -40 }, delay: 4 },
+        { position: { x: 30, y: FEET, z: -39.3 }, delay: 6 },
+        { position: { x: 31, y: FEET, z: -40.7 }, delay: 8 },
       ],
     },
     {
       stopDistance: 85,
       zombies: [
         { position: { x: 29.2, y: FEET, z: -66 }, delay: 0.5 },
-        { position: { x: 30.8, y: FEET, z: -67 }, delay: 1.5 },
-        { position: { x: 30, y: FEET, z: -68 }, delay: 2.5 },
-        { position: { x: 29.4, y: FEET, z: -69 }, delay: 4 },
-        { position: { x: 30.6, y: FEET, z: -66.5 }, delay: 5 },
-        { position: { x: 30, y: FEET, z: -69.5 }, delay: 6.5 },
-        { position: { x: 29.6, y: FEET, z: -67.5 }, delay: 8 },
+        { position: { x: 30.8, y: FEET, z: -67 }, delay: 2 },
+        { position: { x: 30, y: FEET, z: -68 }, delay: 3.5 },
+        { position: { x: 29.4, y: FEET, z: -69 }, delay: 5 },
+        { position: { x: 30.6, y: FEET, z: -66.5 }, delay: 6.5 },
+        { position: { x: 30, y: FEET, z: -69.5 }, delay: 8 },
+        { position: { x: 29.6, y: FEET, z: -67.5 }, delay: 10 },
       ],
     },
   ],

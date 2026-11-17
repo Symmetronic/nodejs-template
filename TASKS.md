@@ -51,7 +51,7 @@ Design decisions:
 - `data-screen` becomes `gameover` at 0 hearts and returns to a fresh level on tap.
 - Encounter, zombie and health logic have unit tests.
 
-## [ ] 4. Shooting, ammo and level clear
+## [x] 4. Shooting, ammo and level clear
 
 **Blocked by:** 3
 

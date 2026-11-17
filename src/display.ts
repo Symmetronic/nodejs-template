@@ -18,9 +18,15 @@ const HALF = 0.5;
 export const FRAME_WIDTH = 160;
 export const FRAME_HEIGHT = 284;
 
+interface FramePoint {
+  readonly x: number;
+  readonly y: number;
+}
+
 interface Display {
   readonly frame: Frame;
   readonly clearFrame: () => void;
+  readonly toFramePoint: (clientX: number, clientY: number) => FramePoint;
   readonly presentFrame: () => void;
   readonly presentWorld: (scene: Scene, camera: Camera) => void;
 }
@@ -91,6 +97,15 @@ export function createDisplay(root: HTMLElement): Display {
     frame,
     clearFrame: () => {
       context.clearRect(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
+    },
+    toFramePoint: (clientX, clientY) => {
+      const bounds = renderer.domElement.getBoundingClientRect();
+      const x = ((clientX - bounds.left) / bounds.width) * FRAME_WIDTH;
+      const y = ((clientY - bounds.top) / bounds.height) * FRAME_HEIGHT;
+      return {
+        x: Math.min(FRAME_WIDTH, Math.max(0, x)),
+        y: Math.min(FRAME_HEIGHT, Math.max(0, y)),
+      };
     },
     presentFrame: () => {
       frameTexture.needsUpdate = true;

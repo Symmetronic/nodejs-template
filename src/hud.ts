@@ -24,6 +24,23 @@ const SHADE = "rgba(0, 0, 0, 0.7)";
 const HALF = 0.5;
 const TITLE_COLOR = "#b3261e";
 const PROMPT_COLOR = "#d9d4c7";
+const AMMO_COLOR = "#e0b84a";
+const AMMO_EMPTY = "#7a2a24";
+const BULLET_WIDTH = 2;
+const BULLET_HEIGHT = 5;
+const BULLET_GAP = 2;
+const FLASH_COLOR = "#fff3a8";
+const FLASH_CORE = "#ffffff";
+const FLASH_WIDTH = 24;
+const FLASH_HEIGHT = 18;
+const FLASH_CORE_WIDTH = 10;
+const FLASH_CORE_HEIGHT = 9;
+const SPARK_COLOR = "#ffd24a";
+const SPARK_CORE = "#ffffff";
+const SPARK_ARM = 4;
+const SPARK_LENGTH = 9;
+const SPARK_CORE_SIZE = 3;
+const CLEAR_COLOR = "#4aa35a";
 const GAME_OVER_TOP = 110;
 const PROMPT_TOP = 150;
 
@@ -52,12 +69,61 @@ function drawCentered(
   );
 }
 
-export function drawHud(
+interface HudState {
+  readonly hearts: number;
+  readonly maximumHearts: number;
+  readonly ammo: number;
+  readonly hurtFlash: number;
+}
+
+function drawAmmo(frame: Frame, ammo: number): void {
+  const text = String(ammo);
+  const textLeft = frame.width - MARGIN - measureText(text);
+  const color = ammo === 0 ? AMMO_EMPTY : AMMO_COLOR;
+  frame.fillRect(
+    color,
+    textLeft - BULLET_GAP - BULLET_WIDTH,
+    MARGIN,
+    BULLET_WIDTH,
+    BULLET_HEIGHT,
+  );
+  drawText(frame, text, textLeft, MARGIN, color);
+}
+
+export function drawMuzzleFlash(frame: Frame, strength: number): void {
+  if (strength <= 0) {
+    return;
+  }
+  const left = Math.floor((frame.width - FLASH_WIDTH) * HALF);
+  const top = frame.height - FLASH_HEIGHT;
+  frame.fillRect(FLASH_COLOR, left, top, FLASH_WIDTH, FLASH_HEIGHT);
+  frame.fillRect(
+    FLASH_CORE,
+    Math.floor((frame.width - FLASH_CORE_WIDTH) * HALF),
+    frame.height - FLASH_CORE_HEIGHT,
+    FLASH_CORE_WIDTH,
+    FLASH_CORE_HEIGHT,
+  );
+}
+
+export function drawHitSpark(
   frame: Frame,
-  hearts: number,
-  maximumHearts: number,
-  hurtFlash: number,
+  x: number,
+  y: number,
+  strength: number,
 ): void {
+  if (strength <= 0) {
+    return;
+  }
+  const cx = Math.round(x);
+  const cy = Math.round(y);
+  frame.fillRect(SPARK_COLOR, cx - SPARK_ARM, cy, SPARK_LENGTH, 1);
+  frame.fillRect(SPARK_COLOR, cx, cy - SPARK_ARM, 1, SPARK_LENGTH);
+  frame.fillRect(SPARK_CORE, cx - 1, cy - 1, SPARK_CORE_SIZE, SPARK_CORE_SIZE);
+}
+
+export function drawHud(frame: Frame, state: HudState): void {
+  const { hearts, maximumHearts, ammo, hurtFlash } = state;
   if (hurtFlash > 0) {
     frame.fillRect(
       `${HURT_COLOR}${String(hurtFlash * HURT_STRENGTH)})`,
@@ -75,10 +141,17 @@ export function drawHud(
       index < hearts ? HEART_COLOR : HEART_EMPTY,
     );
   }
+  drawAmmo(frame, ammo);
 }
 
 export function drawGameOver(frame: Frame): void {
   frame.fillRect(SHADE, 0, 0, frame.width, frame.height);
   drawCentered(frame, "GAME OVER", GAME_OVER_TOP, TITLE_COLOR);
+  drawCentered(frame, "TAP TO RESTART", PROMPT_TOP + FONT_HEIGHT, PROMPT_COLOR);
+}
+
+export function drawLevelClear(frame: Frame): void {
+  frame.fillRect(SHADE, 0, 0, frame.width, frame.height);
+  drawCentered(frame, "LEVEL CLEAR", GAME_OVER_TOP, CLEAR_COLOR);
   drawCentered(frame, "TAP TO RESTART", PROMPT_TOP + FONT_HEIGHT, PROMPT_COLOR);
 }

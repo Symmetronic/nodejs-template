@@ -63,4 +63,53 @@ describe("zombie", () => {
     zombie.update(FRAME_WAIT, ORIGIN);
     assert.equal(zombie.frame, first);
   });
+
+  it("flinches after a body hit and then keeps walking", () => {
+    const zombie = createZombie(FAR);
+    zombie.hit("body");
+    assert.equal(zombie.alive, true);
+    assert.equal(zombie.state, "flinching");
+    const { z } = zombie.position;
+    zombie.update(STEP, ORIGIN);
+    assert.equal(zombie.position.z, z);
+    zombie.update(SHORT_WAIT, ORIGIN);
+    assert.equal(zombie.state, "walking");
+  });
+
+  it("dies from a second body hit", () => {
+    const zombie = createZombie(FAR);
+    zombie.hit("body");
+    zombie.hit("body");
+    assert.equal(zombie.alive, false);
+    assert.equal(zombie.state, "dying");
+  });
+
+  it("dies from one headshot", () => {
+    const zombie = createZombie(FAR);
+    zombie.hit("head");
+    assert.equal(zombie.alive, false);
+  });
+
+  it("does not attack once dead", () => {
+    const zombie = createZombie(NEAR);
+    zombie.hit("head");
+    let total = 0;
+    for (let step = 0; step < TICKS; step += 1) {
+      total += zombie.update(STEP, ORIGIN);
+    }
+    assert.equal(total, 0);
+  });
+
+  it("fades out after falling down", () => {
+    const zombie = createZombie(FAR);
+    zombie.hit("head");
+    const opacity = (): number => zombie.opacity;
+    assert.equal(opacity(), 1);
+    zombie.update(SHORT_WAIT, ORIGIN);
+    assert.ok(opacity() < 1);
+    assert.equal(zombie.faded, false);
+    zombie.update(SHORT_WAIT, ORIGIN);
+    assert.equal(opacity(), 0);
+    assert.equal(zombie.faded, true);
+  });
 });

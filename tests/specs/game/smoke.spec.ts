@@ -46,8 +46,21 @@ function selectedPageId(pages: string): number {
   return Number(match[1]);
 }
 
+async function readAmmo(
+  client: Awaited<ReturnType<typeof connectMcpServer>>,
+  pageId: number,
+): Promise<number> {
+  const result = await client.callTool("evaluate_script", {
+    pageId,
+    function: "() => document.querySelector('#game')?.dataset.ammo",
+  });
+  const match = /"(\d+)"/u.exec(textOf(result));
+  assert.ok(match?.[1], "data-ammo must be set");
+  return Number(match[1]);
+}
+
 describe("game page", () => {
-  it("loads from a subpath, shows the title screen, starts playing and logs no console errors", async () => {
+  it("loads from a subpath, shows the title screen, starts playing, shoots and logs no console errors", async () => {
     const outputDirectory = await mkdtemp(join(tmpdir(), "game-"));
     const build = spawnSync(
       "node",
@@ -103,6 +116,13 @@ describe("game page", () => {
         function: "() => document.querySelector('#game')?.dataset.screen",
       });
       assert.match(textOf(playing), /"playing"/u);
+      const ammoBefore = await readAmmo(client, pageId);
+      await client.callTool("evaluate_script", {
+        pageId,
+        function:
+          "() => document.querySelector('#game')?.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, clientX: 10, clientY: 10 }))",
+      });
+      assert.equal(await readAmmo(client, pageId), ammoBefore - 1);
       const messages = await client.callTool("list_console_messages", {
         pageId,
       });
