@@ -6,11 +6,6 @@
       "USERNAME": "node"
     }
   },
-  "features": {
-    "ghcr.io/devcontainers/features/docker-in-docker:4.1.3": {
-      "moby": false
-    }
-  },
   "portsAttributes": {
     "8080": {
       "label": "Application",
